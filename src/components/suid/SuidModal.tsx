@@ -29,6 +29,7 @@ import {
 import { SearchableMultiSelect, MultiSelectOption } from '../documents/SearchableMultiSelect';
 import { SearchableCombobox, ComboboxOption } from '../documents/SearchableCombobox';
 import { getLocalTodayDateString } from '../../utils/taskUtils';
+import { resolveTaskProject, stripCodeFromProjectName } from '../../utils/projectUtils';
 
 interface SuidModalProps {
   isOpen: boolean;
@@ -128,8 +129,12 @@ export const SuidModal: React.FC<SuidModalProps> = ({
           if (matchPr) currentProjId = matchPr.id;
         }
         setProjectId(currentProjId);
-        setProjectCode(task.projectCode || '');
-        setProjectName(task.projectName || '');
+        const resolved = resolveTaskProject(
+          { projectId: currentProjId, projectCode: task.projectCode, projectName: task.projectName },
+          projects
+        );
+        setProjectCode(resolved.projectCode);
+        setProjectName(resolved.projectName);
 
         const depts = (task.participatingDepartments || []).map((d) => d.departmentShortName);
         setSelectedDeptShortNames(depts);
@@ -193,16 +198,19 @@ export const SuidModal: React.FC<SuidModalProps> = ({
 
   // 1.2.2 Опции для выпадающего списка выбора проекта из справочника «Проекты» с поиском по части слова
   const projectOptions: ComboboxOption[] = useMemo(() => {
-    return projects.map((pr) => ({
-      id: pr.id,
-      label: pr.code ? `${pr.code} • ${pr.name}` : pr.name,
-      subLabel: pr.code ? `Шифр проекта: ${pr.code}` : undefined,
-      badge: pr.code || undefined,
-      searchStr: `${pr.code || ''} ${pr.name}`,
-    }));
+    return projects.map((pr) => {
+      const cleanName = stripCodeFromProjectName(pr.name, pr.code);
+      return {
+        id: pr.id,
+        label: cleanName,
+        subLabel: pr.code ? `Шифр проекта: ${pr.code}` : undefined,
+        badge: pr.code || undefined,
+        searchStr: `${pr.code || ''} ${pr.name} ${cleanName}`,
+      };
+    });
   }, [projects]);
 
-  // Обработка выбора проекта: заполняет и id, и код, и название
+  // Обработка выбора проекта: заполняет и id, и код (автоматически подтягивается из справочника), и чистое название
   const handleProjectSelect = useCallback((selectedId: number | '') => {
     if (selectedId === '') {
       setProjectId(null);
@@ -213,7 +221,7 @@ export const SuidModal: React.FC<SuidModalProps> = ({
       const found = projects.find((pr) => pr.id === selectedId);
       if (found) {
         setProjectCode(found.code || '');
-        setProjectName(found.name || '');
+        setProjectName(stripCodeFromProjectName(found.name, found.code));
       } else {
         setProjectCode('');
         setProjectName('');
@@ -222,19 +230,18 @@ export const SuidModal: React.FC<SuidModalProps> = ({
   }, [projects]);
 
   const handleCustomProjectChange = useCallback((customVal: string) => {
-    setProjectName(customVal);
-    const found = projects.find(
-      (pr) =>
-        pr.name.trim().toLowerCase() === customVal.trim().toLowerCase() ||
-        (pr.code && pr.code.trim().toLowerCase() === customVal.trim().toLowerCase())
+    const { project: found, projectCode: resolvedCode, projectName: cleanName } = resolveTaskProject(
+      { projectName: customVal },
+      projects
     );
     if (found) {
       setProjectId(found.id);
-      setProjectCode(found.code || '');
-      setProjectName(found.name);
+      setProjectCode(resolvedCode);
+      setProjectName(cleanName);
     } else {
       setProjectId(null);
-      setProjectCode('');
+      setProjectCode(resolvedCode);
+      setProjectName(cleanName || customVal);
     }
   }, [projects]);
 
@@ -424,6 +431,11 @@ export const SuidModal: React.FC<SuidModalProps> = ({
         .filter(Boolean)
         .join(', ');
 
+      const { projectCode: finalProjectCode, projectName: finalProjectName } = resolveTaskProject(
+        { projectId, projectCode, projectName },
+        projects
+      );
+
       await onSave({
         id: task?.id,
         idx,
@@ -438,8 +450,8 @@ export const SuidModal: React.FC<SuidModalProps> = ({
         docTypeId: docTypeId || undefined,
         docTypeName,
         projectId: projectId || undefined,
-        projectCode,
-        projectName,
+        projectCode: finalProjectCode,
+        projectName: finalProjectName,
         notes: notes.trim(),
         participatingDepartments,
         branchReports,
@@ -702,13 +714,21 @@ export const SuidModal: React.FC<SuidModalProps> = ({
               value={projectId ?? ''}
               onChange={handleProjectSelect}
               allowCustomValue={true}
-              customValue={projectName ? (projectCode ? `${projectCode} • ${projectName}` : projectName) : ''}
+              customValue={projectName}
               onCustomValueChange={handleCustomProjectChange}
               placeholder="-- Начните вводить шифр или наименование проекта --"
               emptyMessage="Проекты не найдены"
               onAddNew={onOpenNewProjectModal}
               addNewTitle="Добавить новый проект в справочник"
             />
+            {projectCode && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs">
+                <span className="text-slate-500 dark:text-gray-400">Код проекта:</span>
+                <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
+                  {projectCode}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Блок 6 (1.2.3): Структурные подразделения с кнопкой '+' */}

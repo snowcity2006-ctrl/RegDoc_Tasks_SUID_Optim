@@ -25,6 +25,7 @@ import { SuidModal } from './SuidModal';
 import { SuidDetailModal } from './SuidDetailModal';
 import { electronBridge } from '../../services/electronBridge';
 import { formatDateRussian } from '../../utils/date';
+import { resolveTaskProject } from '../../utils/projectUtils';
 
 interface SuidViewProps {
   tasks: SuidTaskRecord[];
@@ -208,6 +209,7 @@ export const SuidView: React.FC<SuidViewProps> = ({
       ];
 
       const rows = filteredTasks.map((t) => {
+        const { projectCode: exportProjCode, projectName: exportProjName } = resolveTaskProject(t, projects);
         const depts = (t.participatingDepartments || []).map((d) => d.departmentShortName).join('; ');
         const reports = t.isReportNotRequired
           ? 'Отчет не требуется'
@@ -226,8 +228,8 @@ export const SuidView: React.FC<SuidViewProps> = ({
           t.suidId || '',
           t.authorName || '',
           t.docTypeName || '',
-          t.projectCode || '',
-          t.projectName || '',
+          exportProjCode || '',
+          exportProjName || '',
           depts,
           reports,
           t.curatorNames || '',
@@ -405,6 +407,7 @@ export const SuidView: React.FC<SuidViewProps> = ({
       {/* Табличная часть */}
       <SuidTable
         tasks={filteredTasks}
+        projects={projects}
         onView={handleView}
         onEdit={handleEdit}
         onDelete={onDeleteTask}
@@ -428,6 +431,7 @@ export const SuidView: React.FC<SuidViewProps> = ({
       {/* Модальное окно детального просмотра */}
       <SuidDetailModal
         task={detailTask}
+        projects={projects}
         onClose={() => setDetailTask(null)}
         onEdit={(t) => {
           setDetailTask(null);

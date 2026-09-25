@@ -17,17 +17,20 @@ import {
   Maximize2,
   Minimize2,
 } from 'lucide-react';
-import { SuidTaskRecord } from '../../types';
+import { SuidTaskRecord, Project } from '../../types';
 import { formatDateRussian } from '../../utils/date';
+import { resolveTaskProject } from '../../utils/projectUtils';
 
 interface SuidDetailModalProps {
   task: SuidTaskRecord | null;
+  projects?: Project[];
   onClose: () => void;
   onEdit?: (task: SuidTaskRecord) => void;
 }
 
 export const SuidDetailModal: React.FC<SuidDetailModalProps> = ({
   task,
+  projects = [],
   onClose,
   onEdit,
 }) => {
@@ -210,21 +213,26 @@ export const SuidDetailModal: React.FC<SuidDetailModalProps> = ({
           </div>
 
           {/* Проект */}
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139]">
-            <div className="text-[10px] text-purple-700 dark:text-purple-400 font-semibold uppercase tracking-wider mb-1">
-              Проект
-            </div>
-            <div className="flex items-baseline gap-2">
-              {task.projectCode && (
-                <span className="px-2 py-0.5 rounded font-mono font-bold bg-purple-100 dark:bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
-                  {task.projectCode}
-                </span>
-              )}
-              <span className="text-slate-900 dark:text-gray-200 font-medium">
-                {task.projectName || '—'}
-              </span>
-            </div>
-          </div>
+          {(() => {
+            const { projectCode: dispCode, projectName: dispName } = resolveTaskProject(task, projects);
+            return (
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139]">
+                <div className="text-[10px] text-purple-700 dark:text-purple-400 font-semibold uppercase tracking-wider mb-1">
+                  Проект
+                </div>
+                <div className="flex items-baseline gap-2">
+                  {dispCode ? (
+                    <span className="px-2 py-0.5 rounded font-mono font-bold bg-purple-100 dark:bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
+                      {dispCode}
+                    </span>
+                  ) : null}
+                  <span className="text-slate-900 dark:text-gray-200 font-medium">
+                    {dispName || '—'}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Куратор от ОПР */}
           <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139]">

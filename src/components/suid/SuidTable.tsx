@@ -22,11 +22,13 @@ import {
   GripHorizontal,
   MoveDiagonal,
 } from 'lucide-react';
-import { SuidTaskRecord } from '../../types';
+import { SuidTaskRecord, Project } from '../../types';
 import { formatDateRussian } from '../../utils/date';
+import { resolveTaskProject } from '../../utils/projectUtils';
 
 interface SuidTableProps {
   tasks: SuidTaskRecord[];
+  projects?: Project[];
   onView?: (task: SuidTaskRecord) => void;
   onEdit?: (task: SuidTaskRecord) => void;
   onDelete?: (id: number) => Promise<void>;
@@ -49,6 +51,7 @@ type SortField =
 
 export const SuidTable: React.FC<SuidTableProps> = ({
   tasks,
+  projects = [],
   onView,
   onEdit,
   onDelete,
@@ -346,8 +349,16 @@ export const SuidTable: React.FC<SuidTableProps> = ({
   // Сортировка данных
   const sortedTasks = useMemo(() => {
     return [...tasks].sort((a, b) => {
-      const aVal = (a as any)[sortField] ?? '';
-      const bVal = (b as any)[sortField] ?? '';
+      let aVal: any = (a as any)[sortField] ?? '';
+      let bVal: any = (b as any)[sortField] ?? '';
+
+      if (sortField === 'projectCode') {
+        aVal = resolveTaskProject(a, projects).projectCode;
+        bVal = resolveTaskProject(b, projects).projectCode;
+      } else if (sortField === 'projectName') {
+        aVal = resolveTaskProject(a, projects).projectName;
+        bVal = resolveTaskProject(b, projects).projectName;
+      }
 
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return sortAsc ? aVal - bVal : bVal - aVal;
@@ -356,7 +367,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
       const cmp = String(aVal).localeCompare(String(bVal), 'ru', { numeric: true, sensitivity: 'base' });
       return sortAsc ? cmp : -cmp;
     });
-  }, [tasks, sortField, sortAsc]);
+  }, [tasks, sortField, sortAsc, projects]);
 
   // Пагинация
   const totalPages = useMemo(() => {
@@ -810,6 +821,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                 paginatedTasks.map((t, index) => {
                   const isDelay = t.delayDays > 0;
                   const rowBg = index % 2 === 0 ? 'bg-[#171A21]' : 'bg-[#1C1F28]';
+                  const { projectCode: displayProjectCode, projectName: displayProjectName } = resolveTaskProject(t, projects);
 
                   return (
                     <tr
@@ -821,7 +833,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.idx}px`, minWidth: `${colWidths.idx}px`, maxWidth: `${colWidths.idx}px` }}
                         className="px-2 py-2 text-center font-mono text-gray-400 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <span className="truncate block">{t.idx ?? t.id}</span>
+                        <span className="whitespace-normal break-all block leading-tight">{t.idx ?? t.id}</span>
                       </td>
 
                       {/* Дата поступления */}
@@ -829,7 +841,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.receiptDate}px`, minWidth: `${colWidths.receiptDate}px`, maxWidth: `${colWidths.receiptDate}px` }}
                         className="px-2.5 py-2 text-gray-300 font-mono text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <span className="truncate block" title={formatDateRussian(t.receiptDate)}>
+                        <span className="whitespace-normal break-words block leading-snug" title={formatDateRussian(t.receiptDate)}>
                           {formatDateRussian(t.receiptDate)}
                         </span>
                       </td>
@@ -839,7 +851,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.plannedEndDate}px`, minWidth: `${colWidths.plannedEndDate}px`, maxWidth: `${colWidths.plannedEndDate}px` }}
                         className="px-2.5 py-2 font-mono text-[11px] text-blue-300 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <span className="truncate block" title={formatDateRussian(t.plannedEndDate)}>
+                        <span className="whitespace-normal break-words block leading-snug" title={formatDateRussian(t.plannedEndDate)}>
                           {formatDateRussian(t.plannedEndDate)}
                         </span>
                       </td>
@@ -849,7 +861,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.actualEndDate}px`, minWidth: `${colWidths.actualEndDate}px`, maxWidth: `${colWidths.actualEndDate}px` }}
                         className="px-2.5 py-2 font-mono text-[11px] text-emerald-300 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <span className="truncate block" title={formatDateRussian(t.actualEndDate) || '—'}>
+                        <span className="whitespace-normal break-words block leading-snug" title={formatDateRussian(t.actualEndDate) || '—'}>
                           {formatDateRussian(t.actualEndDate) || <span className="text-gray-500">—</span>}
                         </span>
                       </td>
@@ -859,14 +871,14 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.delayDays}px`, minWidth: `${colWidths.delayDays}px`, maxWidth: `${colWidths.delayDays}px` }}
                         className="px-2 py-2 text-center overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="flex items-center justify-center min-w-0 max-w-full overflow-hidden">
+                        <div className="flex items-center justify-center min-w-0 max-w-full">
                           {isDelay ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30 truncate max-w-full" title={`+${t.delayDays} дн.`}>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30 whitespace-normal break-words text-center" title={`+${t.delayDays} дн.`}>
                               <AlertTriangle className="w-2.5 h-2.5 text-rose-400 shrink-0" />
-                              <span className="truncate">+{t.delayDays} дн.</span>
+                              <span>+{t.delayDays} дн.</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 truncate max-w-full">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-normal break-words text-center">
                               0 дн.
                             </span>
                           )}
@@ -878,7 +890,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.taskName}px`, minWidth: `${colWidths.taskName}px`, maxWidth: `${colWidths.taskName}px` }}
                         className="px-2.5 py-2 text-slate-900 dark:text-white font-medium overflow-hidden border-r border-slate-200 dark:border-[#2D3139]/50"
                       >
-                        <div className="line-clamp-2 break-words max-w-full overflow-hidden text-xs" title={t.taskName}>
+                        <div className="whitespace-normal break-words max-w-full text-xs leading-snug select-text" title={t.taskName}>
                           {t.taskName}
                         </div>
                       </td>
@@ -888,7 +900,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.taskDescription}px`, minWidth: `${colWidths.taskDescription}px`, maxWidth: `${colWidths.taskDescription}px` }}
                         className="px-2.5 py-2 text-slate-600 dark:text-gray-300 text-[11px] overflow-hidden border-r border-slate-200 dark:border-[#2D3139]/50"
                       >
-                        <div className="line-clamp-2 break-words max-w-full overflow-hidden" title={t.taskDescription}>
+                        <div className="whitespace-normal break-words max-w-full text-[11px] leading-snug select-text" title={t.taskDescription}>
                           {t.taskDescription || <span className="text-gray-500">—</span>}
                         </div>
                       </td>
@@ -898,9 +910,9 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.suidId}px`, minWidth: `${colWidths.suidId}px`, maxWidth: `${colWidths.suidId}px` }}
                         className="px-2.5 py-2 font-mono text-[11px] text-amber-300 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="min-w-0 max-w-full overflow-hidden">
+                        <div className="min-w-0 max-w-full">
                           {t.suidId ? (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 truncate max-w-full inline-block" title={t.suidId}>
+                            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 whitespace-normal break-all inline-block font-mono text-[11px] leading-tight select-text" title={t.suidId}>
                               {t.suidId}
                             </span>
                           ) : (
@@ -914,7 +926,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.authorName}px`, minWidth: `${colWidths.authorName}px`, maxWidth: `${colWidths.authorName}px` }}
                         className="px-2.5 py-2 text-gray-300 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="truncate max-w-full" title={t.authorName}>
+                        <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={t.authorName}>
                           {t.authorName || <span className="text-gray-500">—</span>}
                         </div>
                       </td>
@@ -924,9 +936,9 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.docTypeName}px`, minWidth: `${colWidths.docTypeName}px`, maxWidth: `${colWidths.docTypeName}px` }}
                         className="px-2.5 py-2 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="min-w-0 max-w-full overflow-hidden">
+                        <div className="min-w-0 max-w-full">
                           {t.docTypeName ? (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 truncate max-w-full inline-block" title={t.docTypeName}>
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 whitespace-normal break-words inline-block leading-tight select-text" title={t.docTypeName}>
                               {t.docTypeName}
                             </span>
                           ) : (
@@ -935,15 +947,15 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         </div>
                       </td>
 
-                      {/* Код проекта */}
+                      {/* Код проекта: подтягивается автоматически из справочника "Проекты" */}
                       <td
                         style={{ width: `${colWidths.projectCode}px`, minWidth: `${colWidths.projectCode}px`, maxWidth: `${colWidths.projectCode}px` }}
                         className="px-2.5 py-2 font-mono text-[11px] text-purple-300 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="min-w-0 max-w-full overflow-hidden">
-                          {t.projectCode ? (
-                            <span className="px-1.5 py-0.5 rounded bg-purple-500/15 border border-purple-500/25 truncate max-w-full inline-block" title={t.projectCode}>
-                              {t.projectCode}
+                        <div className="min-w-0 max-w-full">
+                          {displayProjectCode ? (
+                            <span className="px-1.5 py-0.5 rounded bg-purple-500/15 border border-purple-500/25 whitespace-normal break-words inline-block font-mono leading-tight select-text" title={displayProjectCode}>
+                              {displayProjectCode}
                             </span>
                           ) : (
                             <span className="text-gray-500">—</span>
@@ -951,13 +963,13 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         </div>
                       </td>
 
-                      {/* Название проекта */}
+                      {/* Название проекта: без дублирования информации о коде проекта */}
                       <td
                         style={{ width: `${colWidths.projectName}px`, minWidth: `${colWidths.projectName}px`, maxWidth: `${colWidths.projectName}px` }}
                         className="px-2.5 py-2 text-gray-300 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="line-clamp-2 break-words max-w-full overflow-hidden" title={t.projectName}>
-                          {t.projectName || <span className="text-gray-500">—</span>}
+                        <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={displayProjectName}>
+                          {displayProjectName || <span className="text-gray-500">—</span>}
                         </div>
                       </td>
 
@@ -967,11 +979,11 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 overflow-hidden border-r border-[#2D3139]/50"
                       >
                         {t.participatingDepartments && t.participatingDepartments.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-full overflow-hidden">
+                          <div className="flex flex-wrap gap-1 max-w-full">
                             {t.participatingDepartments.map((dept, dIdx) => (
                               <span
                                 key={dIdx}
-                                className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border truncate max-w-full inline-block ${
+                                className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border whitespace-normal break-words leading-tight inline-block ${
                                   dept.requiredReport
                                     ? 'bg-blue-900/30 text-blue-300 border-blue-500/30'
                                     : 'bg-gray-800 text-gray-400 border-gray-700'
@@ -993,16 +1005,16 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 overflow-hidden border-r border-[#2D3139]/50"
                       >
                         {t.isReportNotRequired ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-700 truncate max-w-full">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-800 text-gray-400 border border-gray-700 whitespace-normal break-words">
                             <Ban className="w-2.5 h-2.5 shrink-0" />
-                            <span className="truncate">Отчет не требуется</span>
+                            <span>Отчет не требуется</span>
                           </span>
                         ) : t.branchReports && t.branchReports.length > 0 ? (
-                          <div className="flex flex-col gap-1 w-full max-w-full min-w-0 overflow-hidden">
+                          <div className="flex flex-col gap-1 w-full max-w-full min-w-0">
                             {t.branchReports.map((br, brIdx) => (
                               <div
                                 key={brIdx}
-                                className="flex items-center gap-1.5 text-[10px] font-mono leading-tight bg-[#0F1115] px-1.5 py-0.5 rounded border border-[#2D3139] min-w-0 max-w-full overflow-hidden"
+                                className="flex items-center gap-1.5 text-[10px] font-mono leading-tight bg-[#0F1115] px-1.5 py-0.5 rounded border border-[#2D3139] min-w-0 max-w-full"
                                 title={`${br.departmentShortName}: ${br.documentDetails || (br.isReceived ? 'Отчет получен' : 'Отчет отсутствует')}`}
                               >
                                 {br.isReceived ? (
@@ -1011,16 +1023,16 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                                   <Clock className="w-3 h-3 text-amber-400 shrink-0" />
                                 )}
                                 <span className="font-bold text-gray-300 shrink-0">{br.departmentShortName}:</span>
-                                <span className="truncate text-gray-400 min-w-0">
+                                <span className="whitespace-normal break-words text-gray-400 min-w-0 leading-tight">
                                   {br.documentDetails || (br.isReceived ? 'Отчет получен' : 'Ожидается')}
                                 </span>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-amber-400/80 text-[10px] flex items-center gap-1 truncate max-w-full">
+                          <span className="text-amber-400/80 text-[10px] flex items-center gap-1 whitespace-normal break-words">
                             <Clock className="w-3 h-3 shrink-0" />
-                            <span className="truncate">Ожидается отчет</span>
+                            <span>Ожидается отчет</span>
                           </span>
                         )}
                       </td>
@@ -1030,7 +1042,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.curatorNames}px`, minWidth: `${colWidths.curatorNames}px`, maxWidth: `${colWidths.curatorNames}px` }}
                         className="px-2.5 py-2 text-gray-300 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="truncate max-w-full" title={t.curatorNames}>
+                        <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={t.curatorNames}>
                           {t.curatorNames || <span className="text-gray-500">—</span>}
                         </div>
                       </td>
@@ -1040,7 +1052,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.notes}px`, minWidth: `${colWidths.notes}px`, maxWidth: `${colWidths.notes}px` }}
                         className="px-2.5 py-2 text-gray-400 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <div className="line-clamp-2 break-words max-w-full overflow-hidden" title={t.notes}>
+                        <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={t.notes}>
                           {t.notes || <span className="text-gray-500">—</span>}
                         </div>
                       </td>
