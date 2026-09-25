@@ -575,10 +575,12 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 1. Справочник: Организации */}
       {activeTab === 'orgs' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-400" />
-              <h3 className="text-sm font-bold text-[#E0E0E0]">
+          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-wide">
                 Справочник «Организации» ({sortedOrgs.length})
               </h3>
             </div>
@@ -588,7 +590,7 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
                 setSelectedOrg(null);
                 setOrgModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shadow-blue-500/20"
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить организацию</span>
@@ -750,10 +752,12 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 2. Справочник: Структурное подразделение */}
       {activeTab === 'depts' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Network className="w-5 h-5 text-blue-400" />
-              <h3 className="text-sm font-bold text-[#E0E0E0]">
+          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Network className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-wide">
                 Справочник «Структурное подразделение» ({sortedDepts.length})
               </h3>
             </div>
@@ -763,7 +767,7 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
                 setSelectedDept(null);
                 setDeptModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shadow-blue-500/20"
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить подразделение</span>
@@ -915,10 +919,12 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 3. Справочник: Сотрудники */}
       {activeTab === 'emps' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-blue-400" />
-              <h3 className="text-sm font-bold text-[#E0E0E0]">
+          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-wide">
                 Справочник «Сотрудники» ({sortedEmps.length})
               </h3>
             </div>
@@ -928,7 +934,7 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
                 setSelectedEmp(null);
                 setEmpModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shadow-blue-500/20"
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить сотрудника</span>
@@ -1108,10 +1114,12 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 4. Справочник: Тип документа */}
       {activeTab === 'docTypes' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Tag className="w-5 h-5 text-blue-400" />
-              <h3 className="text-sm font-bold text-[#E0E0E0]">
+          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Tag className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-wide">
                 Справочник «Тип документа» ({sortedDocTypes.length})
               </h3>
             </div>
@@ -1121,7 +1129,7 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
                 setSelectedDocType(null);
                 setDocTypeModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shadow-blue-500/20"
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить тип</span>
@@ -1229,10 +1237,12 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 5. Справочник: Направление */}
       {activeTab === 'directions' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Compass className="w-5 h-5 text-blue-400" />
-              <h3 className="text-sm font-bold text-[#E0E0E0]">
+          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Compass className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-wide">
                 Справочник «Направление» ({sortedDirs.length})
               </h3>
             </div>
@@ -1242,7 +1252,7 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
                 setSelectedDir(null);
                 setDirModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shadow-blue-500/20"
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить направление</span>
@@ -1350,10 +1360,12 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 6. Справочник: Проекты */}
       {activeTab === 'projects' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden flex flex-col">
-          <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-blue-400" />
-              <h3 className="text-sm font-bold text-[#E0E0E0]">
+          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Briefcase className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-wide">
                 Справочник «Проекты» ({sortedProjects.length})
               </h3>
             </div>
@@ -1363,7 +1375,7 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
                 setSelectedProject(null);
                 setProjectModalOpen(true);
               }}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shadow-blue-500/20"
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить проект</span>

@@ -712,32 +712,137 @@ table.table-fixed th > * {
 }
 
 /* ==========================================================================
-   Светлая тема: форма «Редактирование проекта» / «Новый проект»
+   Шапки таблиц справочников и формы модальных окон справочников (Светлая и темная темы):
+   - Корпоративная контрастная синяя шапка (#2563eb / bg-blue-600)
+   - Контрастный белый шрифт для названий форм (#ffffff) и светло-голубой для подзаголовков (#dbeafe)
+   - Чистый контрастный интерфейс полей ввода в светлой теме
    ========================================================================== */
+.directory-table-header,
+#directory-table-header,
+html:not(.dark) .directory-table-header,
+html:not(.dark) #directory-table-header {
+  background-color: #2563eb !important;
+  border-bottom-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+.directory-table-header h3,
+.directory-table-header span,
+#directory-table-header h3,
+#directory-table-header span,
+html:not(.dark) .directory-table-header h3,
+html:not(.dark) .directory-table-header span,
+html:not(.dark) #directory-table-header h3,
+html:not(.dark) #directory-table-header span {
+  color: #ffffff !important;
+}
+
+.directory-modal-header,
+#employee-modal-header,
+#department-modal-header,
+#organization-modal-header,
+#doctype-modal-header,
+#direction-modal-header,
+#project-modal-header,
+html:not(.dark) .directory-modal-header,
+html:not(.dark) #employee-modal-header,
+html:not(.dark) #department-modal-header,
+html:not(.dark) #organization-modal-header,
+html:not(.dark) #doctype-modal-header,
+html:not(.dark) #direction-modal-header,
+html:not(.dark) #project-modal-header {
+  background-color: #2563eb !important;
+  border-bottom-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+#employee-modal-title,
+#department-modal-title,
+#organization-modal-title,
+#doctype-modal-title,
+#direction-modal-title,
+#project-modal-title,
+.directory-modal-header h3,
+.directory-modal-header h2,
+html:not(.dark) #employee-modal-title,
+html:not(.dark) #department-modal-title,
+html:not(.dark) #organization-modal-title,
+html:not(.dark) #doctype-modal-title,
+html:not(.dark) #direction-modal-title,
+html:not(.dark) #project-modal-title,
+html:not(.dark) .directory-modal-header h3,
+html:not(.dark) .directory-modal-header h2 {
+  color: #ffffff !important;
+}
+
+#employee-modal-subtitle,
+#department-modal-subtitle,
+#organization-modal-subtitle,
+#doctype-modal-subtitle,
+#direction-modal-subtitle,
+#project-modal-subtitle,
+.directory-modal-header p,
+html:not(.dark) #employee-modal-subtitle,
+html:not(.dark) #department-modal-subtitle,
+html:not(.dark) #organization-modal-subtitle,
+html:not(.dark) #doctype-modal-subtitle,
+html:not(.dark) #direction-modal-subtitle,
+html:not(.dark) #project-modal-subtitle,
+html:not(.dark) .directory-modal-header p {
+  color: #dbeafe !important;
+}
+
+/* Корректные цвета диалогов и полей форм справочников в светлой теме */
+html:not(.dark) #employee-modal-dialog,
+html:not(.dark) #department-modal-dialog,
+html:not(.dark) #organization-modal-dialog,
+html:not(.dark) #doctype-modal-dialog,
+html:not(.dark) #direction-modal-dialog,
 html:not(.dark) #project-modal-dialog {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) #project-modal-dialog h3 {
-  color: #0f172a !important;
+html:not(.dark) #employee-modal-dialog label,
+html:not(.dark) #department-modal-dialog label,
+html:not(.dark) #organization-modal-dialog label,
+html:not(.dark) #doctype-modal-dialog label,
+html:not(.dark) #direction-modal-dialog label,
+html:not(.dark) #project-modal-dialog label {
+  color: #1e293b !important;
 }
 
-html:not(.dark) #project-name-input,
-html:not(.dark) #project-code-input {
+html:not(.dark) #employee-modal-dialog input:not([disabled]),
+html:not(.dark) #department-modal-dialog input:not([disabled]),
+html:not(.dark) #organization-modal-dialog input:not([disabled]),
+html:not(.dark) #doctype-modal-dialog input:not([disabled]),
+html:not(.dark) #direction-modal-dialog input:not([disabled]),
+html:not(.dark) #project-modal-dialog input:not([disabled]),
+html:not(.dark) #employee-modal-dialog textarea,
+html:not(.dark) #department-modal-dialog textarea,
+html:not(.dark) #organization-modal-dialog textarea,
+html:not(.dark) #doctype-modal-dialog textarea,
+html:not(.dark) #direction-modal-dialog textarea,
+html:not(.dark) #project-modal-dialog textarea {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
 
-html:not(.dark) #project-name-input:focus,
-html:not(.dark) #project-code-input:focus {
+html:not(.dark) #employee-modal-dialog input:focus,
+html:not(.dark) #department-modal-dialog input:focus,
+html:not(.dark) #organization-modal-dialog input:focus,
+html:not(.dark) #doctype-modal-dialog input:focus,
+html:not(.dark) #direction-modal-dialog input:focus,
+html:not(.dark) #project-modal-dialog input:focus {
   border-color: #3b82f6 !important;
 }
 
-html:not(.dark) #project-name-input::placeholder,
-html:not(.dark) #project-code-input::placeholder {
+html:not(.dark) #employee-modal-dialog input::placeholder,
+html:not(.dark) #department-modal-dialog input::placeholder,
+html:not(.dark) #organization-modal-dialog input::placeholder,
+html:not(.dark) #doctype-modal-dialog input::placeholder,
+html:not(.dark) #direction-modal-dialog input::placeholder,
+html:not(.dark) #project-modal-dialog input::placeholder {
   color: #94a3b8 !important;
 }
 

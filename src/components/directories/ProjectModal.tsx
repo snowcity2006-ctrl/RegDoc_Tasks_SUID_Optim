@@ -154,16 +154,25 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           }`}
         >
           {/* Шапка модального окна */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#2D3139] bg-slate-50 dark:bg-[#1F222B]/60 shrink-0">
+          <div
+            id="project-modal-header"
+            onDoubleClick={() => setIsMaximized(!isMaximized)}
+            title="Двойной клик разворачивает / восстанавливает окно"
+            className="directory-modal-header flex items-center justify-between px-6 py-4 border-b border-blue-500/50 bg-blue-600 text-white shrink-0 select-none cursor-default"
+          >
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-600 dark:text-blue-400">
+              <div className="p-2.5 rounded-xl bg-blue-700/80 border border-blue-400/40 text-white shadow-xs">
                 <Briefcase className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                <h3
+                  id="project-modal-title"
+                  className="text-base font-bold text-white tracking-wide truncate"
+                  style={{ color: '#ffffff' }}
+                >
                   {initialData ? 'Редактирование проекта' : 'Новый проект'}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-gray-400">Справочник проектов и объектов проектирования</p>
+                <p id="project-modal-subtitle" className="text-xs text-blue-100">Справочник проектов и объектов проектирования</p>
               </div>
             </div>
 
@@ -172,7 +181,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 type="button"
                 onClick={() => setIsMaximized(!isMaximized)}
                 title={isMaximized ? 'Восстановить размер' : 'Развернуть на весь экран'}
-                className="p-2 text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-blue-200 hover:text-white hover:bg-blue-700/60 rounded-lg transition-colors cursor-pointer"
               >
                 {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
@@ -180,7 +189,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 type="button"
                 onClick={onClose}
                 title="Закрыть окно"
-                className="p-2 text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-blue-200 hover:text-white hover:bg-blue-700/60 rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { UserCheck, X, Check, AlertCircle, Plus, Maximize2, Minimize2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { UserCheck, X, Check, AlertCircle, Building2, Network, Maximize2, Minimize2 } from 'lucide-react';
 import { Employee, Department, Organization } from '../../types';
+import { SearchableCombobox, ComboboxOption } from '../documents/SearchableCombobox';
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -48,7 +49,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
       setDepartmentShortName(filteredDepts.length > 0 ? filteredDepts[0].shortName : '');
     }
     setError(null);
-  }, [initialData, isOpen]);
+  }, [initialData, isOpen, organizations, departments]);
 
   // Автоматический выбор вновь добавленного подразделения без сброса введенного ФИО
   const prevDeptsLengthRef = React.useRef(departments.length);
@@ -63,7 +64,87 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
   }, [departments, isOpen, organizationId]);
 
   // Фильтрация подразделений по выбранной организации
-  const availableDepartments = departments.filter((d) => !organizationId || d.organizationId === Number(organizationId));
+  const availableDepartments = useMemo(() => {
+    if (!organizationId) return departments;
+    return departments.filter((d) => d.organizationId === Number(organizationId));
+  }, [departments, organizationId]);
+
+  // Опции организаций для выпадающего списка с поиском по части слова
+  const orgOptions: ComboboxOption[] = useMemo(() => {
+    return organizations.map((org) => ({
+      id: org.id,
+      label: org.name,
+      subLabel: org.director ? `Руководитель: ${org.director}` : (org.email ? `Email: ${org.email}` : undefined),
+      badge: org.email || undefined,
+      searchStr: `${org.name} ${org.director || ''} ${org.email || ''}`,
+    }));
+  }, [organizations]);
+
+  // Опции структурных подразделений для выпадающего списка с поиском по части слова
+  const deptOptions: ComboboxOption[] = useMemo(() => {
+    return availableDepartments.map((dept) => ({
+      id: dept.id,
+      label: dept.shortName,
+      subLabel: dept.name,
+      badge: !organizationId && dept.organizationName ? dept.organizationName : undefined,
+      searchStr: `${dept.shortName} ${dept.name} ${dept.organizationName || ''}`,
+    }));
+  }, [availableDepartments, organizationId]);
+
+  // Идентификатор выбранного подразделения
+  const selectedDeptId = useMemo(() => {
+    const cleanCurrent = departmentShortName.trim().toLowerCase();
+    if (!cleanCurrent) return '';
+    const found = availableDepartments.find((d) => d.shortName.trim().toLowerCase() === cleanCurrent);
+    return found ? found.id : '';
+  }, [availableDepartments, departmentShortName]);
+
+  // Обработчик выбора организации
+  const handleOrgChange = useCallback((newOrgId: number | '') => {
+    setOrganizationId(newOrgId);
+    if (newOrgId) {
+      const filtered = departments.filter((d) => d.organizationId === Number(newOrgId));
+      if (departmentShortName) {
+        const stillValid = filtered.some(
+          (d) => d.shortName.trim().toLowerCase() === departmentShortName.trim().toLowerCase()
+        );
+        if (!stillValid) {
+          setDepartmentShortName(filtered.length > 0 ? filtered[0].shortName : '');
+        }
+      } else if (filtered.length > 0) {
+        setDepartmentShortName(filtered[0].shortName);
+      }
+    }
+  }, [departments, departmentShortName]);
+
+  // Обработчик выбора подразделения из списка совпадений
+  const handleDeptChange = useCallback((selectedId: number | '') => {
+    if (selectedId === '') {
+      setDepartmentShortName('');
+    } else {
+      const dept = availableDepartments.find((d) => d.id === selectedId);
+      if (dept) {
+        setDepartmentShortName(dept.shortName);
+        if (!organizationId || organizationId !== dept.organizationId) {
+          setOrganizationId(dept.organizationId);
+        }
+      }
+    }
+  }, [availableDepartments, organizationId]);
+
+  // Обработчик ручного ввода названия/сокращения подразделения
+  const handleCustomDeptChange = useCallback((val: string) => {
+    setDepartmentShortName(val);
+    const clean = val.trim().toLowerCase();
+    if (clean) {
+      const found = departments.find(
+        (d) => d.shortName.trim().toLowerCase() === clean || (d.name && d.name.trim().toLowerCase() === clean)
+      );
+      if (found && (!organizationId || organizationId !== found.organizationId)) {
+        setOrganizationId(found.organizationId);
+      }
+    }
+  }, [departments, organizationId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,9 +181,14 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
   if (!isOpen) return null;
 
+  const currentDeptMatch = availableDepartments.find(
+    (d) => d.shortName.trim().toLowerCase() === departmentShortName.trim().toLowerCase()
+  );
+
   return (
     <div className={`fixed inset-0 z-[60] flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
       <div
+        id="employee-modal-dialog"
         className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
@@ -111,19 +197,24 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
       >
         {/* Заголовок (двойной клик разворачивает окно) */}
         <div
+          id="employee-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-6 py-4 border-b border-slate-200 dark:border-[#2D3139] flex items-center justify-between bg-slate-50 dark:bg-[#12151B]/60 shrink-0 select-none cursor-default"
+          className="directory-modal-header px-6 py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-900/60 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shadow-xs shrink-0">
               <UserCheck className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-slate-900 dark:text-[#E0E0E0] truncate">
+              <h3
+                id="employee-modal-title"
+                className="text-base font-bold text-white tracking-wide truncate"
+                style={{ color: '#ffffff' }}
+              >
                 {initialData ? 'Редактирование сотрудника' : 'Новый сотрудник'}
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-gray-400 truncate">
+              <p id="employee-modal-subtitle" className="text-[11px] text-blue-100 truncate">
                 {initialData ? 'Изменение данных сотрудника' : 'Добавление нового сотрудника в организацию'}
               </p>
             </div>
@@ -133,7 +224,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
               type="button"
               onClick={() => setIsMaximized((prev) => !prev)}
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
-              className="text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="text-blue-200 hover:text-white hover:bg-blue-700/60 p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
@@ -141,7 +232,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
               type="button"
               onClick={onClose}
               title="Закрыть окно"
-              className="text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="text-blue-200 hover:text-white hover:bg-blue-700/60 p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -198,92 +289,54 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
             />
           </div>
 
-          {/* Организация с иконкой '+' справа по ТЗ */}
+          {/* Организация с возможностью поиска по части слова и кнопкой '+' */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
               Организация <span className="text-rose-500">*</span>
             </label>
-            <div className="flex gap-2 w-full min-w-0 items-center">
-              <select
-                required
-                value={organizationId}
-                onChange={(e) => {
-                  const newOrgId = e.target.value ? Number(e.target.value) : '';
-                  setOrganizationId(newOrgId);
-                  // Сброс подразделения при смене организации
-                  const filtered = departments.filter((d) => d.organizationId === newOrgId);
-                  setDepartmentShortName(filtered.length > 0 ? filtered[0].shortName : '');
-                }}
-                className="flex-1 w-0 min-w-0 px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:ring-1 focus:ring-blue-500 truncate transition-colors"
-              >
-                <option value="" className="bg-white dark:bg-[#171A21] text-slate-400 dark:text-gray-400">-- Выберите организацию --</option>
-                {organizations.map((org) => (
-                  <option key={org.id} value={org.id} className="bg-white dark:bg-[#171A21] text-slate-900 dark:text-[#E0E0E0]" title={org.name}>
-                    {org.name}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                onClick={onOpenNewOrgModal}
-                title="Добавить новую организацию в справочник"
-                className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950/80 dark:hover:bg-blue-900 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer flex items-center justify-center shrink-0"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+            <SearchableCombobox
+              id="employee-modal-organization"
+              inputId="employee-modal-org-input"
+              options={orgOptions}
+              value={organizationId}
+              onChange={handleOrgChange}
+              placeholder="-- Начните ввод названия или выберите организацию --"
+              emptyMessage="Организации не найдены"
+              onAddNew={onOpenNewOrgModal}
+              addNewTitle="Добавить новую организацию в справочник"
+              icon={<Building2 className="w-4 h-4" />}
+            />
           </div>
 
-          {/* Структурное подразделение (заполняется из Сокращенное название СП) с кнопкой '+' */}
+          {/* Структурное подразделение с возможностью поиска по части слова и кнопкой '+' */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
               Структурное подразделение (Сокращенное СП) <span className="text-rose-500">*</span>
             </label>
-            <div className="flex gap-2 w-full min-w-0 items-center">
-              {availableDepartments.length > 0 ? (
-                <select
-                  required
-                  value={departmentShortName}
-                  onChange={(e) => setDepartmentShortName(e.target.value)}
-                  className="flex-1 w-0 min-w-0 px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:ring-1 focus:ring-blue-500 truncate transition-colors"
-                  title={availableDepartments.find((d) => d.shortName === departmentShortName)?.name}
-                >
-                  <option value="" className="bg-white dark:bg-[#171A21] text-slate-400 dark:text-gray-400">-- Выберите СП --</option>
-                  {availableDepartments.map((dept) => (
-                    <option key={dept.id} value={dept.shortName} className="bg-white dark:bg-[#171A21] text-slate-900 dark:text-[#E0E0E0]" title={`${dept.shortName} — ${dept.name}`}>
-                      {dept.shortName} — {dept.name.length > 45 ? `${dept.name.slice(0, 42)}…` : dept.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  required
-                  value={departmentShortName}
-                  onChange={(e) => setDepartmentShortName(e.target.value)}
-                  placeholder="Введите сокращенное название СП (например: ОЗИ)"
-                  className="flex-1 w-0 min-w-0 px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-colors"
-                />
-              )}
+            <SearchableCombobox
+              id="employee-modal-department"
+              inputId="employee-modal-dept-input"
+              options={deptOptions}
+              value={selectedDeptId}
+              onChange={handleDeptChange}
+              allowCustomValue={true}
+              customValue={departmentShortName}
+              onCustomValueChange={handleCustomDeptChange}
+              placeholder="-- Начните ввод сокращения или названия СП --"
+              emptyMessage="Подразделения не найдены"
+              onAddNew={() => onOpenNewDepartmentModal(organizationId ? Number(organizationId) : undefined)}
+              addNewTitle="Добавить новое структурное подразделение в справочник"
+              icon={<Network className="w-4 h-4" />}
+            />
 
-              <button
-                type="button"
-                onClick={() => onOpenNewDepartmentModal(organizationId ? Number(organizationId) : undefined)}
-                title="Добавить новое структурное подразделение в справочник"
-                className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950/80 dark:hover:bg-blue-900 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer flex items-center justify-center shrink-0"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-            {availableDepartments.find((d) => d.shortName === departmentShortName) && (
-              <p className="text-[11px] text-slate-500 dark:text-gray-400 mt-1 truncate" title={availableDepartments.find((d) => d.shortName === departmentShortName)?.name}>
-                Полное наименование: <span className="text-slate-700 dark:text-gray-300 font-medium">{availableDepartments.find((d) => d.shortName === departmentShortName)?.name}</span>
+            {currentDeptMatch && (
+              <p className="text-[11px] text-slate-500 dark:text-gray-400 mt-1 truncate" title={currentDeptMatch.name}>
+                Полное наименование: <span className="text-slate-700 dark:text-gray-300 font-medium">{currentDeptMatch.name}</span>
               </p>
             )}
             {availableDepartments.length === 0 && (
               <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
-                Для выбранной организации нет подразделений в справочнике. Нажмите «+» для добавления в справочник или укажите сокращение вручную.
+                Для выбранной организации нет подразделений в справочнике. Нажмите «+» для добавления в справочник или введите сокращение вручную.
               </p>
             )}
           </div>

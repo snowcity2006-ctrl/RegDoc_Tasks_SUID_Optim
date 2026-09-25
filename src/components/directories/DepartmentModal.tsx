@@ -52,7 +52,9 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
     return organizations.map((org) => ({
       id: org.id,
       label: org.name,
-      searchStr: org.name,
+      subLabel: org.director ? `Руководитель: ${org.director}` : (org.email ? `Email: ${org.email}` : undefined),
+      badge: org.email || undefined,
+      searchStr: `${org.name} ${org.director || ''} ${org.email || ''}`,
     }));
   }, [organizations]);
 
@@ -129,6 +131,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
   return (
     <div className={`fixed inset-0 z-[70] flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
       <div
+        id="department-modal-dialog"
         className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
@@ -137,19 +140,24 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
       >
         {/* Заголовок (двойной клик разворачивает окно) */}
         <div
+          id="department-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-6 py-4 border-b border-slate-200 dark:border-[#2D3139] flex items-center justify-between bg-slate-50 dark:bg-[#12151B]/60 shrink-0 select-none cursor-default"
+          className="directory-modal-header px-6 py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-900/60 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shadow-xs shrink-0">
               <Network className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-slate-900 dark:text-[#E0E0E0] truncate">
+              <h3
+                id="department-modal-title"
+                className="text-base font-bold text-white tracking-wide truncate"
+                style={{ color: '#ffffff' }}
+              >
                 {initialData ? 'Редактирование подразделения' : 'Новое структурное подразделение'}
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-gray-400 truncate">
+              <p id="department-modal-subtitle" className="text-[11px] text-blue-100 truncate">
                 {initialData ? 'Изменение данных подразделения' : 'Добавление подразделения в выбранную организацию'}
               </p>
             </div>
@@ -159,7 +167,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
               type="button"
               onClick={() => setIsMaximized((prev) => !prev)}
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
-              className="text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="text-blue-200 hover:text-white hover:bg-blue-700/60 p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
@@ -167,7 +175,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
               type="button"
               onClick={onClose}
               title="Закрыть окно"
-              className="text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="text-blue-200 hover:text-white hover:bg-blue-700/60 p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

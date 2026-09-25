@@ -28,6 +28,32 @@ interface SearchableComboboxProps {
   onCustomValueChange?: (val: string) => void;
 }
 
+// Преобразование раскладки клавиатуры (En <-> Ru) при поиске
+const EN_RU_MAP: Record<string, string> = {
+  q: 'й', w: 'ц', e: 'у', r: 'к', t: 'е', y: 'н', u: 'г', i: 'ш', o: 'щ', p: 'з', '[': 'х', ']': 'ъ',
+  a: 'ф', s: 'ы', d: 'в', f: 'а', g: 'п', h: 'р', j: 'о', k: 'л', l: 'д', ';': 'ж', "'": 'э',
+  z: 'я', x: 'ч', c: 'с', v: 'м', b: 'и', n: 'т', m: 'ь', ',': 'б', '.': 'ю',
+};
+const RU_EN_MAP: Record<string, string> = Object.entries(EN_RU_MAP).reduce((acc, [en, ru]) => {
+  acc[ru] = en;
+  return acc;
+}, {} as Record<string, string>);
+
+function convertLayout(str: string): string {
+  return str
+    .split('')
+    .map((ch) => {
+      const lower = ch.toLowerCase();
+      const mapped = EN_RU_MAP[lower] || RU_EN_MAP[lower] || lower;
+      return ch === ch.toUpperCase() && ch !== lower ? mapped.toUpperCase() : mapped;
+    })
+    .join('');
+}
+
+function normalizeSearchText(str: string): string {
+  return str.toLowerCase().replace(/ё/g, 'е').trim();
+}
+
 export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(({
   id,
   inputId,
@@ -137,24 +163,51 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  // Фильтрация опций по введенному тексту (регистронезависимо):
-  // По мере набора скрываются все опции, не содержащие введенный текст
+  // Фильтрация опций по введенному тексту (поиск по частям слов, регистронезависимо, с поддержкой раскладки):
+  // При наборе "отд кад" или "бух" отображаются все записи, содержащие введенные фрагменты слов
   const filteredOptions = useMemo(() => {
     if (!hasUserTyped || !query.trim()) return options;
-    const q = query.trim().toLowerCase();
+
+    const q = query.trim();
+    const qNorm = normalizeSearchText(q);
+    const qAlt = normalizeSearchText(convertLayout(q));
+
+    // Разбиваем запрос на токены (части слов) по пробелам
+    const tokens = qNorm.split(/\s+/).filter(Boolean);
+    const altTokens = qAlt !== qNorm ? qAlt.split(/\s+/).filter(Boolean) : [];
+
     const matches = options.filter((opt) => {
-      const labelMatch = opt.label.toLowerCase().includes(q);
-      const subMatch = opt.subLabel?.toLowerCase().includes(q) || false;
-      const badgeMatch = opt.badge?.toLowerCase().includes(q) || false;
-      const searchStrMatch = opt.searchStr?.toLowerCase().includes(q) || false;
-      return labelMatch || subMatch || badgeMatch || searchStrMatch;
+      const combined = normalizeSearchText(
+        `${opt.label} ${opt.subLabel || ''} ${opt.badge || ''} ${opt.searchStr || ''}`
+      );
+
+      // Все токены должны входить в объединенную строку (поиск по частям слов)
+      const matchesDirect = tokens.every((tok) => combined.includes(tok));
+      if (matchesDirect) return true;
+
+      // Проверка с альтернативной раскладкой клавиатуры
+      if (altTokens.length > 0 && altTokens.every((tok) => combined.includes(tok))) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // Сортировка совпадений: опции, начинающиеся с первого токена, выводятся первыми
+    matches.sort((a, b) => {
+      const firstTok = tokens[0] || '';
+      const aStarts = normalizeSearchText(a.label).startsWith(firstTok);
+      const bStarts = normalizeSearchText(b.label).startsWith(firstTok);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return 0;
     });
 
     // Если разрешен ввод произвольного значения и совпадение не является точным, добавляем пункт использования текста
     if (
       allowCustomValue &&
       q &&
-      !options.some((opt) => opt.label.toLowerCase() === q)
+      !options.some((opt) => normalizeSearchText(opt.label) === qNorm)
     ) {
       return [
         ...matches,
@@ -259,25 +312,43 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
     }
   };
 
-  // Быстрая подсветка совпадений в тексте без тяжелых регулярных выражений
-  const renderHighlighted = (text: string, highlight: string) => {
-    if (!hasUserTyped || !highlight.trim()) return text;
-    const lowerText = text.toLowerCase();
-    const lowerHighlight = highlight.toLowerCase();
-    const index = lowerText.indexOf(lowerHighlight);
-    if (index === -1) return text;
+  // Подсветка всех совпавших частей слов в тексте опции
+  const renderHighlighted = (text: string, _highlight: string) => {
+    if (!hasUserTyped || !query.trim() || !text) return text;
 
-    const before = text.slice(0, index);
-    const match = text.slice(index, index + highlight.length);
-    const after = text.slice(index + highlight.length);
+    const qNorm = normalizeSearchText(query);
+    const qAlt = normalizeSearchText(convertLayout(query));
+    const allTokens = Array.from(
+      new Set(
+        [...qNorm.split(/\s+/), ...(qAlt !== qNorm ? qAlt.split(/\s+/) : [])]
+          .map((t) => t.trim())
+          .filter((t) => t.length > 0)
+      )
+    );
+
+    if (allTokens.length === 0) return text;
+
+    const escaped = allTokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
+
+    const parts = text.split(regex);
+    if (parts.length <= 1) return text;
 
     return (
       <>
-        {before}
-        <span className="text-blue-400 font-semibold bg-blue-500/20 px-0.5 rounded">
-          {match}
-        </span>
-        {after}
+        {parts.map((part, i) => {
+          const isMatch = allTokens.some(
+            (tok) => normalizeSearchText(tok) === normalizeSearchText(part)
+          );
+          if (isMatch) {
+            return (
+              <span key={i} className="text-blue-400 font-semibold bg-blue-500/20 px-0.5 rounded">
+                {part}
+              </span>
+            );
+          }
+          return part;
+        })}
       </>
     );
   };
@@ -288,9 +359,9 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
         {/* Поле ввода с автодополнением и клавиатурным поиском */}
         <div
           className={`relative min-w-0 flex-1 flex items-center min-h-[42px] ${
-            inputContainerClassName || 'bg-[#0F1115]'
+            inputContainerClassName || 'bg-white dark:bg-[#0F1115]'
           } border ${
-            isOpen ? 'border-blue-500 ring-1 ring-blue-500/30' : 'border-[#2D3139]'
+            isOpen ? 'border-blue-500 ring-1 ring-blue-500/30' : 'border-slate-200 dark:border-[#2D3139]'
           } rounded-xl transition-all duration-150 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-text'}`}
           onClick={() => {
             if (!disabled) {
@@ -299,7 +370,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
             }
           }}
         >
-          {icon && <div className="pl-3 text-gray-500 shrink-0">{icon}</div>}
+          {icon && <div className="pl-3 text-slate-400 dark:text-gray-500 shrink-0">{icon}</div>}
 
           <input
             id={inputId}
@@ -322,7 +393,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
               setHighlightedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            className="w-full min-w-0 flex-1 bg-transparent px-3 py-2 text-xs text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none truncate"
+            className="w-full min-w-0 flex-1 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none truncate"
           />
 
           <div className="flex items-center gap-1 pr-2 shrink-0">
@@ -331,7 +402,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
                 type="button"
                 onClick={handleClear}
                 title="Очистить выбор"
-                className="p-1 text-gray-400 hover:text-rose-400 rounded-md hover:bg-white/5 transition-colors"
+                className="p-1 text-slate-400 hover:text-rose-500 dark:text-gray-400 dark:hover:text-rose-400 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -350,9 +421,9 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
                   }
                 }
               }}
-              className="p-1 text-gray-400 hover:text-gray-200 transition-transform"
+              className="p-1 text-slate-400 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-transform"
             >
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-400' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500 dark:text-blue-400' : ''}`} />
             </button>
           </div>
         </div>
@@ -363,7 +434,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
             type="button"
             onClick={onAddNew}
             title={addNewTitle}
-            className="p-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30 transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-600/10 dark:hover:bg-blue-600/20 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-500/30 transition-colors cursor-pointer flex items-center justify-center shrink-0"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -374,13 +445,13 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
       {isOpen && (
         <div
           ref={listRef}
-          className="absolute left-0 right-0 top-full mt-1 z-50 bg-[#1F222B] border border-[#2D3139] rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 max-h-60 overflow-y-auto"
+          className="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 max-h-60 overflow-y-auto"
         >
           {hasUserTyped && query.trim() && (
-            <div className="px-3 py-1.5 bg-[#171A21] border-b border-[#2D3139] text-[11px] text-gray-400 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-[#171A21] border-b border-slate-200 dark:border-[#2D3139] text-[11px] text-slate-500 dark:text-gray-400 flex items-center justify-between">
               <span className="flex items-center gap-1">
-                <Search className="w-3 h-3 text-blue-400" />
-                Поиск: «<strong className="text-gray-200">{query.trim()}</strong>»
+                <Search className="w-3 h-3 text-blue-500 dark:text-blue-400" />
+                <span>Поиск: «<strong className="text-slate-800 dark:text-gray-200">{query.trim()}</strong>»</span>
               </span>
               <span>Найдено: {filteredOptions.length}</span>
             </div>
@@ -388,7 +459,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
 
           {filteredOptions.length === 0 ? (
             <div className="p-4 text-center">
-              <p className="text-xs text-gray-400">{emptyMessage}</p>
+              <p className="text-xs text-slate-400 dark:text-gray-400">{emptyMessage}</p>
               {onAddNew && (
                 <button
                   type="button"
@@ -396,7 +467,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
                     setIsOpen(false);
                     onAddNew();
                   }}
-                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 rounded-lg text-xs font-medium transition-colors"
+                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:hover:bg-blue-600/30 dark:text-blue-300 rounded-lg text-xs font-medium transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   {addNewTitle}
@@ -404,7 +475,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
               )}
             </div>
           ) : (
-            <div className="divide-y divide-[#2D3139]/40 p-1">
+            <div className="divide-y divide-slate-100 dark:divide-[#2D3139]/40 p-1">
               {filteredOptions.map((opt, index) => {
                 const isSelected = opt.id === value;
                 const isHighlighted = index === highlightedIndex;
@@ -416,29 +487,29 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
                     onMouseEnter={() => setHighlightedIndex(index)}
                     className={`combobox-item flex items-center justify-between gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-xs ${
                       isSelected
-                        ? 'bg-blue-600/20 text-blue-200 font-medium'
+                        ? 'bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-200 font-medium'
                         : isHighlighted
-                        ? 'bg-[#2D3139]/70 text-[#E0E0E0]'
-                        : 'hover:bg-[#2D3139]/40 text-gray-300'
+                        ? 'bg-slate-100 dark:bg-[#2D3139]/70 text-slate-900 dark:text-[#E0E0E0]'
+                        : 'hover:bg-slate-50 dark:hover:bg-[#2D3139]/40 text-slate-700 dark:text-gray-300'
                     }`}
                   >
                     <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="truncate">{renderHighlighted(opt.label, query)}</span>
                         {opt.badge && (
-                          <span className="text-[10px] px-1.5 py-0.5 bg-[#2D3139] text-gray-400 rounded">
+                          <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-[#2D3139] text-slate-600 dark:text-gray-400 rounded border border-slate-200 dark:border-transparent">
                             {opt.badge}
                           </span>
                         )}
                       </div>
                       {opt.subLabel && (
-                        <span className="text-[11px] text-gray-400 truncate mt-0.5">
+                        <span className="text-[11px] text-slate-500 dark:text-gray-400 truncate mt-0.5">
                           {renderHighlighted(opt.subLabel, query)}
                         </span>
                       )}
                     </div>
 
-                    {isSelected && <Check className="w-4 h-4 text-blue-400 shrink-0" />}
+                    {isSelected && <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />}
                   </div>
                 );
               })}
