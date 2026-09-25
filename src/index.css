@@ -57,12 +57,15 @@
 }
 
 /* Оптимизация полей ввода для устранения задержки при быстром наборе текста:
-   Исключение длительных переходов (transition-duration) на элементах форм */
+   Полное отключение CSS-переходов на элементах форм для мгновенного отклика в Astra Linux (X11 / Fly WM / Software Rasterizer) */
 input,
 textarea,
-select {
-  transition-property: border-color, box-shadow !important;
-  transition-duration: 75ms !important;
+select,
+input:focus,
+textarea:focus,
+select:focus {
+  transition: none !important;
+  -webkit-transition: none !important;
 }
 
 /* ==========================================================================
@@ -845,4 +848,73 @@ html:not(.dark) #direction-modal-dialog input::placeholder,
 html:not(.dark) #project-modal-dialog input::placeholder {
   color: #94a3b8 !important;
 }
+
+/* ==========================================================================
+   Шапка модального окна создания/редактирования задачи (Светлая и темная темы):
+   - Корпоративная контрастная синяя шапка (#2563eb / bg-blue-600)
+   - Контрастный белый шрифт для названий форм (#ffffff) и светло-голубой для подзаголовков (#dbeafe)
+   - Чистый контрастный интерфейс полей ввода в светлой теме
+   ========================================================================== */
+#task-form-modal-header,
+.task-modal-header,
+html:not(.dark) #task-form-modal-header,
+html:not(.dark) .task-modal-header {
+  background-color: #2563eb !important;
+  border-bottom-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+#task-form-modal-title,
+.task-modal-header h3,
+html:not(.dark) #task-form-modal-title,
+html:not(.dark) .task-modal-header h3 {
+  color: #ffffff !important;
+}
+
+#task-form-modal-subtitle,
+.task-modal-header p,
+html:not(.dark) #task-form-modal-subtitle,
+html:not(.dark) .task-modal-header p {
+  color: #dbeafe !important;
+}
+
+#task-form-modal-header button,
+html:not(.dark) #task-form-modal-header button {
+  color: #dbeafe !important;
+}
+
+#task-form-modal-header button:hover,
+html:not(.dark) #task-form-modal-header button:hover {
+  color: #ffffff !important;
+  background-color: rgba(29, 78, 216, 0.8) !important;
+}
+
+/* Корректные цвета диалогов и полей формы задач в светлой теме */
+html:not(.dark) #task-form-modal-container {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #task-form-modal-container label {
+  color: #1e293b !important;
+}
+
+html:not(.dark) #task-form-modal-container input:not([type="checkbox"]),
+html:not(.dark) #task-form-modal-container textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #task-form-modal-container input:focus,
+html:not(.dark) #task-form-modal-container textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 1px #2563eb !important;
+}
+
+html:not(.dark) #task-form-modal-container input::placeholder,
+html:not(.dark) #task-form-modal-container textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
 

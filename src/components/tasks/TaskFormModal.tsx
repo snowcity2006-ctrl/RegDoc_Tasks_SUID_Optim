@@ -39,21 +39,26 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   onOpenNewEmployeeModal,
   tasks = [],
 }) => {
-  const [taskText, setTaskText] = useState('');
   const [plannedEndDate, setPlannedEndDate] = useState('');
   const [actualEndDate, setActualEndDate] = useState('');
   const [isCompleted, setIsCompleted] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [assigneeId, setAssigneeId] = useState<number | ''>('');
-  const [result, setResult] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+
+  // Ссылки на поля ввода и актуальные значения текста для мгновенного набора текста в Astra Linux (без лишних ре-рендеров)
+  const taskTextRef = useRef<string>('');
+  const resultRef = useRef<string>('');
+  const taskInputRef = useRef<HTMLTextAreaElement>(null);
+  const resultInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Множественный выбор исполнителей и ручной поиск с фильтрацией
   const [isMultipleAssignees, setIsMultipleAssignees] = useState(false);
   const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<number[]>([]);
   const [assigneeSearchQuery, setAssigneeSearchQuery] = useState('');
+  const deferredAssigneeSearchQuery = React.useDeferredValue(assigneeSearchQuery);
   const [isAssigneeDropdownOpen, setIsAssigneeDropdownOpen] = useState(false);
 
   const assigneeDropdownRef = useRef<HTMLDivElement>(null);
@@ -77,8 +82,19 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    const initialTask = initialData ? (initialData.task || '') : '';
+    const initialResult = initialData ? (initialData.result || '') : '';
+    taskTextRef.current = initialTask;
+    resultRef.current = initialResult;
+
+    if (taskInputRef.current) {
+      taskInputRef.current.value = initialTask;
+    }
+    if (resultInputRef.current) {
+      resultInputRef.current.value = initialResult;
+    }
+
     if (initialData) {
-      setTaskText(initialData.task || '');
       setPlannedEndDate(initialData.plannedEndDate || '');
       setActualEndDate(initialData.actualEndDate || '');
       setIsCompleted(Boolean(initialData.isCompleted));
@@ -86,9 +102,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       setAssigneeId(initialData.assigneeId ?? '');
       setSelectedAssigneeIds(initialData.assigneeId ? [initialData.assigneeId] : []);
       setIsMultipleAssignees(false);
-      setResult(initialData.result || '');
     } else {
-      setTaskText('');
       // По умолчанию плановая дата - через 7 дней
       const defDate = new Date();
       defDate.setDate(defDate.getDate() + 7);
@@ -99,7 +113,6 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       setAssigneeId('');
       setSelectedAssigneeIds([]);
       setIsMultipleAssignees(false);
-      setResult('');
     }
     setAssigneeSearchQuery('');
     setIsAssigneeDropdownOpen(false);
@@ -134,8 +147,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
   // Фильтрация списка сотрудников в реальном времени при ручном наборе символов
   const filteredEmployees = useMemo(() => {
-    if (!assigneeSearchQuery.trim()) return employees;
-    const q = assigneeSearchQuery.toLowerCase().trim();
+    if (!deferredAssigneeSearchQuery.trim()) return employees;
+    const q = deferredAssigneeSearchQuery.toLowerCase().trim();
     return employees.filter((emp) => {
       const nameMatch = emp.fullName.toLowerCase().includes(q);
       const posMatch = (emp.position || '').toLowerCase().includes(q);
@@ -143,7 +156,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       const orgMatch = (emp.organizationName || '').toLowerCase().includes(q);
       return nameMatch || posMatch || deptMatch || orgMatch;
     });
-  }, [employees, assigneeSearchQuery]);
+  }, [employees, deferredAssigneeSearchQuery]);
 
   const handleToggleAssignee = (id: number) => {
     setError(null);
@@ -211,8 +224,12 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!taskText.trim()) {
+    const currentTaskText = (taskInputRef.current ? taskInputRef.current.value : taskTextRef.current).trim();
+    const currentResult = (resultInputRef.current ? resultInputRef.current.value : resultRef.current).trim();
+
+    if (!currentTaskText) {
       setError('Укажите формулировку задачи');
+      taskInputRef.current?.focus();
       return;
     }
     if (!plannedEndDate) {
@@ -241,7 +258,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         const taskListToCreate = selectedAssigneeIds.map((empId) => {
           const emp = employees.find((e) => e.id === empId);
           return {
-            task: taskText.trim(),
+            task: currentTaskText,
             plannedEndDate,
             actualEndDate: actualEndDate || '',
             isCompleted,
@@ -249,7 +266,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
             frozenDaysRemaining: frozenDays,
             assigneeId: empId,
             assigneeName: emp ? emp.fullName : '',
-            result: result.trim(),
+            result: currentResult,
           };
         });
 
@@ -278,7 +295,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         // 1. Обновляем исходную редактируемую задачу
         await onSave({
           id: initialData.id,
-          task: taskText.trim(),
+          task: currentTaskText,
           plannedEndDate,
           actualEndDate: actualEndDate || '',
           isCompleted,
@@ -286,14 +303,14 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           frozenDaysRemaining: frozenDays,
           assigneeId: primaryEmpId,
           assigneeName: primaryEmp ? primaryEmp.fullName : '',
-          result: result.trim(),
+          result: currentResult,
         });
 
         // 2. Для остальных выбранных исполнителей создаем отдельные задачи в БД
         const additionalTasksToCreate = additionalEmpIds.map((empId) => {
           const emp = employees.find((e) => e.id === empId);
           return {
-            task: taskText.trim(),
+            task: currentTaskText,
             plannedEndDate,
             actualEndDate: actualEndDate || '',
             isCompleted,
@@ -301,7 +318,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
             frozenDaysRemaining: frozenDays,
             assigneeId: empId,
             assigneeName: emp ? emp.fullName : '',
-            result: result.trim(),
+            result: currentResult,
           };
         });
 
@@ -325,7 +342,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
       await onSave({
         ...(initialData ? { id: initialData.id } : {}),
-        task: taskText.trim(),
+        task: currentTaskText,
         plannedEndDate,
         actualEndDate: actualEndDate || '',
         isCompleted,
@@ -333,7 +350,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         frozenDaysRemaining: frozenDays,
         assigneeId: effectiveAssigneeId,
         assigneeName,
-        result: result.trim(),
+        result: currentResult,
       });
       onClose();
     } catch (err: any) {
@@ -346,29 +363,37 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
       <div
+        id="task-form-modal-container"
         className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-2xl rounded-2xl flex flex-col transition-all duration-200 overflow-hidden ${
           isMaximized ? 'w-full h-full max-w-none rounded-none' : 'w-full max-w-2xl max-h-[92vh]'
         }`}
       >
-        {/* Заголовок */}
+        {/* Заголовок формы с корпоративным синим стилем и высокой контрастностью */}
         <div
+          id="task-form-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-[#2D3139] flex items-center justify-between bg-slate-50 dark:bg-[#1F222B] shrink-0 select-none cursor-default"
+          className="task-modal-header px-5 sm:px-6 py-3.5 sm:py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
+          style={{ backgroundColor: '#2563eb' }}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-500 dark:text-blue-400 flex items-center justify-center border border-blue-500/20 shrink-0">
-              <CheckSquare className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-blue-700/80 text-white flex items-center justify-center border border-blue-400/40 shrink-0 shadow-xs">
+              <CheckSquare className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
               <h3
                 id="task-form-modal-title"
-                className="text-base font-bold text-slate-900 dark:text-[#E0E0E0] truncate"
+                className="text-base font-bold text-white tracking-wide truncate"
+                style={{ color: '#ffffff' }}
               >
                 {initialData ? `Редактирование задачи №${initialData.id}` : 'Создание новой задачи'}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-gray-400 truncate">
-                Символом <span className="text-rose-500 dark:text-rose-400 font-bold">*</span> обозначены обязательные для заполнения поля
+              <p
+                id="task-form-modal-subtitle"
+                className="text-xs text-blue-100 truncate"
+                style={{ color: '#dbeafe' }}
+              >
+                Символом <span className="text-amber-300 font-bold">*</span> обозначены обязательные для заполнения поля
               </p>
             </div>
           </div>
@@ -376,7 +401,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
             <button
               type="button"
               onClick={() => setIsMaximized(!isMaximized)}
-              className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-[#2D3139] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -385,7 +410,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
               type="button"
               onClick={onClose}
               title="Закрыть окно"
-              className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-[#2D3139] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -404,7 +429,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           {/* Индикатор статуса и расчетных дней */}
           <div className="p-3.5 bg-slate-50 dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <span className="text-xs text-slate-600 dark:text-gray-400">Текущий статус:</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-gray-300">Текущий статус:</span>
               <span
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusInfo.badgeClass}`}
               >
@@ -415,63 +440,73 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
             <div className="flex items-center gap-2 text-xs">
               <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-gray-400" />
-              <span className="text-slate-600 dark:text-gray-400">Осталось дней:</span>
+              <span className="text-slate-700 dark:text-gray-300 font-semibold">Осталось дней:</span>
               <span className={`font-mono font-bold text-sm ${statusInfo.textClass}`}>
                 {previewDays === null ? '—' : previewDays > 0 ? `+${previewDays}` : previewDays}
               </span>
               {isAccepted && (
-                <span className="text-[10px] bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-500/30">
+                <span className="text-[10px] bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-500/30 font-medium">
                   зафиксировано
                 </span>
               )}
             </div>
           </div>
 
-          {/* Формулировка задачи */}
+          {/* Формулировка задачи: оптимизировано для мгновенного набора текста в Astra Linux */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+            <label className="block text-xs font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Задача (описание поручения) *</span>
             </label>
             <textarea
+              ref={taskInputRef}
               id="input-task-text"
               required
               rows={3}
-              value={taskText}
-              onChange={(e) => setTaskText(e.target.value)}
+              defaultValue={initialData ? (initialData.task || '') : ''}
+              key={`task-text-${initialData?.id ?? 'new'}-${isOpen}`}
+              onChange={(e) => {
+                taskTextRef.current = e.target.value;
+                if (error) setError(null);
+              }}
               placeholder="Введите содержание поручения или задачи..."
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors resize-y"
+              spellCheck={false}
+              autoComplete="off"
+              autoCorrect="off"
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 resize-y"
             />
           </div>
 
           {/* Сроки: Плановая и Фактическая дата */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+              <label className="block text-xs font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                 <span>Дата окончания по плану *</span>
               </label>
               <input
                 id="input-task-planned-date"
                 type="date"
                 required
+                autoComplete="off"
                 value={plannedEndDate}
                 onChange={(e) => setPlannedEndDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 [color-scheme:light] dark:[color-scheme:dark] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 [color-scheme:light] dark:[color-scheme:dark]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 flex items-center gap-1.5">
+              <label className="block text-xs font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-gray-400" />
                 <span>Дата окончания по факту</span>
               </label>
               <input
                 id="input-task-actual-date"
                 type="date"
+                autoComplete="off"
                 value={actualEndDate}
                 onChange={(e) => setActualEndDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 [color-scheme:light] dark:[color-scheme:dark] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 [color-scheme:light] dark:[color-scheme:dark]"
               />
             </div>
           </div>
@@ -628,7 +663,10 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                       value={assigneeSearchQuery}
                       onChange={(e) => setAssigneeSearchQuery(e.target.value)}
                       placeholder="Введите символы для фильтрации (ФИО, должность, отдел)..."
-                      className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                      spellCheck={false}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                       onClick={(e) => e.stopPropagation()}
                     />
                     {assigneeSearchQuery && (
@@ -877,17 +915,24 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
           {/* Поле "Результат" */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 flex items-center gap-1.5">
+            <label className="block text-xs font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Результат выполнения</span>
             </label>
             <textarea
+              ref={resultInputRef}
               id="input-task-result"
               rows={3}
-              value={result}
-              onChange={(e) => setResult(e.target.value)}
+              defaultValue={initialData ? (initialData.result || '') : ''}
+              key={`task-result-${initialData?.id ?? 'new'}-${isOpen}`}
+              onChange={(e) => {
+                resultRef.current = e.target.value;
+              }}
               placeholder="Укажите достигнутый результат, реквизиты подтверждающего документа или комментарий..."
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors resize-y"
+              spellCheck={false}
+              autoComplete="off"
+              autoCorrect="off"
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 resize-y"
             />
           </div>
 
