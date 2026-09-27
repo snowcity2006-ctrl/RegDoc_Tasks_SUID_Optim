@@ -174,19 +174,31 @@ export const TaskExportModal: React.FC<TaskExportModalProps> = ({
     >
       <div
         id="task-export-modal-container"
-        className="bg-[#171A21] border border-[#2D3139] rounded-2xl w-full max-w-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]"
+        className="bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-2xl w-full max-w-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh] text-slate-900 dark:text-[#E0E0E0]"
       >
         {/* Шапка модального окна */}
-        <div className="p-4 sm:p-5 border-b border-[#2D3139] flex items-center justify-between bg-[#12151B]/60">
+        <div
+          id="task-export-modal-header"
+          className="p-4 sm:p-5 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white"
+          style={{ backgroundColor: '#2563eb' }}
+        >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-              <FileSpreadsheet className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-blue-700/80 text-white border border-blue-400/40 flex items-center justify-center shrink-0 shadow-xs">
+              <FileSpreadsheet className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#E0E0E0] flex items-center gap-2">
+              <h3
+                id="task-export-modal-title"
+                className="text-base font-bold text-white flex items-center gap-2"
+                style={{ color: '#ffffff' }}
+              >
                 Выгрузка задач в Excel
               </h3>
-              <p className="text-xs text-gray-400">
+              <p
+                id="task-export-modal-subtitle"
+                className="text-xs text-blue-100"
+                style={{ color: '#dbeafe' }}
+              >
                 Экспорт данных таблицы с учетом установленных фильтров
               </p>
             </div>
@@ -195,7 +207,7 @@ export const TaskExportModal: React.FC<TaskExportModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isExporting}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1F222B] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-blue-100 hover:text-white hover:bg-blue-700/80 transition-colors cursor-pointer"
             title="Закрыть"
           >
             <X className="w-5 h-5" />

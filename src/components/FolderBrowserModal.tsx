@@ -273,7 +273,8 @@ export const FolderBrowserModal: React.FC<FolderBrowserModalProps> = ({
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-200`}>
       <div
-        className={`bg-[#171A21] shadow-2xl border border-[#2D3139] overflow-hidden flex flex-col text-[#E0E0E0] transition-all duration-200 ${
+        id="folder-browser-modal-container"
+        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[92vw] max-w-5xl max-h-[92vh] rounded-2xl'
@@ -281,19 +282,29 @@ export const FolderBrowserModal: React.FC<FolderBrowserModalProps> = ({
       >
         {/* Заголовок модального окна (двойной клик разворачивает окно) */}
         <div
+          id="folder-browser-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-5 sm:px-6 py-4 border-b border-[#2D3139] flex items-center justify-between bg-[#1F222B]/70 shrink-0 select-none cursor-default"
+          className="px-5 sm:px-6 py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
+          style={{ backgroundColor: '#2563eb' }}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center border border-blue-500/30 shrink-0">
-              <FolderOpen className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-blue-700/80 text-white flex items-center justify-center border border-blue-400/40 shrink-0 shadow-xs">
+              <FolderOpen className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-[#E0E0E0] leading-tight truncate">
+              <h3
+                id="folder-browser-modal-title"
+                className="text-base font-bold text-white leading-tight truncate"
+                style={{ color: '#ffffff' }}
+              >
                 {title}
               </h3>
-              <p className="text-xs text-gray-400 mt-0.5 truncate">
+              <p
+                id="folder-browser-modal-subtitle"
+                className="text-xs text-blue-100 mt-0.5 truncate"
+                style={{ color: '#dbeafe' }}
+              >
                 Поддержка сетевых дисков (SMB/NFS/UNC) и локальных путей Astra Linux и Windows
               </p>
             </div>
@@ -302,16 +313,16 @@ export const FolderBrowserModal: React.FC<FolderBrowserModalProps> = ({
           <div className="flex items-center gap-1 shrink-0 ml-2">
             <button
               type="button"
-              onClick={() => setIsMaximized((prev) => !prev)}
+              onClick={() => setIsMaximized(!isMaximized)}
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
-              className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#2D3139] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
             <button
               onClick={onClose}
               title="Закрыть окно"
-              className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#2D3139] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

@@ -615,7 +615,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
       <div
-        className={`bg-[#171A21] shadow-2xl border border-[#2D3139] overflow-hidden flex flex-col text-[#E0E0E0] transition-all duration-200 ${
+        id="document-form-modal-container"
+        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[94vw] max-w-6xl max-h-[94vh] rounded-2xl'
@@ -623,29 +624,39 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
       >
         {/* Заголовок формы (двойной клик разворачивает окно) */}
         <div
+          id="document-form-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-[#2D3139] flex items-center justify-between bg-[#1F222B] shrink-0 select-none cursor-default"
+          className="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
+          style={{ backgroundColor: '#2563eb' }}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-400 flex items-center justify-center border border-blue-500/20 shrink-0">
-              <FileText className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-blue-700/80 text-white flex items-center justify-center border border-blue-400/40 shrink-0 shadow-xs">
+              <FileText className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-[#E0E0E0] truncate">
+              <h3
+                id="document-form-modal-title"
+                className="text-base font-bold text-white tracking-wide truncate"
+                style={{ color: '#ffffff' }}
+              >
                 {initialData ? `Редактирование карточки документа №${initialData.id}` : 'Регистрация нового документа'}
               </h3>
-              <p className="text-xs text-gray-400 truncate">
-                Символом <span className="text-rose-400 font-bold">*</span> обозначены обязательные для заполнения поля
+              <p
+                id="document-form-modal-subtitle"
+                className="text-xs text-blue-100 truncate"
+                style={{ color: '#dbeafe' }}
+              >
+                Символом <span className="text-amber-300 font-bold">*</span> обозначены обязательные для заполнения поля
               </p>
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0 ml-2">
             <button
               type="button"
-              onClick={() => setIsMaximized((prev) => !prev)}
+              onClick={() => setIsMaximized(!isMaximized)}
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
-              className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#2D3139] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
@@ -653,7 +664,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
               type="button"
               onClick={onClose}
               title="Закрыть окно"
-              className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#2D3139] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

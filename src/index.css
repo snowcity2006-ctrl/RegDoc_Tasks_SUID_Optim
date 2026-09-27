@@ -850,70 +850,179 @@ html:not(.dark) #project-modal-dialog input::placeholder {
 }
 
 /* ==========================================================================
-   Шапка модального окна создания/редактирования задачи (Светлая и темная темы):
+   Шапки модальных окон всех форм программы (Светлая и темная темы):
    - Корпоративная контрастная синяя шапка (#2563eb / bg-blue-600)
    - Контрастный белый шрифт для названий форм (#ffffff) и светло-голубой для подзаголовков (#dbeafe)
-   - Чистый контрастный интерфейс полей ввода в светлой теме
+   - Чистый контрастный интерфейс полей ввода и карточек в светлой теме
    ========================================================================== */
+#document-form-modal-header,
+#document-card-modal-header,
+#related-documents-modal-header,
 #task-form-modal-header,
+#task-export-modal-header,
+#suid-modal-header,
+#suid-detail-modal-header,
+#db-config-modal-header,
+#logs-modal-header,
+#folder-browser-modal-header,
 .task-modal-header,
+html:not(.dark) #document-form-modal-header,
+html:not(.dark) #document-card-modal-header,
+html:not(.dark) #related-documents-modal-header,
 html:not(.dark) #task-form-modal-header,
+html:not(.dark) #task-export-modal-header,
+html:not(.dark) #suid-modal-header,
+html:not(.dark) #suid-detail-modal-header,
+html:not(.dark) #db-config-modal-header,
+html:not(.dark) #logs-modal-header,
+html:not(.dark) #folder-browser-modal-header,
 html:not(.dark) .task-modal-header {
   background-color: #2563eb !important;
   border-bottom-color: rgba(59, 130, 246, 0.5) !important;
 }
 
+#document-form-modal-title,
+#document-card-modal-title,
+#related-documents-modal-title,
 #task-form-modal-title,
+#task-export-modal-title,
+#suid-modal-title,
+#suid-detail-modal-title,
+#db-config-modal-title,
+#logs-modal-title,
+#folder-browser-modal-title,
 .task-modal-header h3,
+html:not(.dark) #document-form-modal-title,
+html:not(.dark) #document-card-modal-title,
+html:not(.dark) #related-documents-modal-title,
 html:not(.dark) #task-form-modal-title,
+html:not(.dark) #task-export-modal-title,
+html:not(.dark) #suid-modal-title,
+html:not(.dark) #suid-detail-modal-title,
+html:not(.dark) #db-config-modal-title,
+html:not(.dark) #logs-modal-title,
+html:not(.dark) #folder-browser-modal-title,
 html:not(.dark) .task-modal-header h3 {
   color: #ffffff !important;
 }
 
+#document-form-modal-subtitle,
+#document-card-modal-subtitle,
+#related-documents-modal-subtitle,
 #task-form-modal-subtitle,
+#task-export-modal-subtitle,
+#db-config-modal-subtitle,
+#logs-modal-subtitle,
+#folder-browser-modal-subtitle,
 .task-modal-header p,
+html:not(.dark) #document-form-modal-subtitle,
+html:not(.dark) #document-card-modal-subtitle,
+html:not(.dark) #related-documents-modal-subtitle,
 html:not(.dark) #task-form-modal-subtitle,
+html:not(.dark) #task-export-modal-subtitle,
+html:not(.dark) #db-config-modal-subtitle,
+html:not(.dark) #logs-modal-subtitle,
+html:not(.dark) #folder-browser-modal-subtitle,
 html:not(.dark) .task-modal-header p {
   color: #dbeafe !important;
 }
 
+#document-form-modal-header button,
+#document-card-modal-header button,
+#related-documents-modal-header button,
 #task-form-modal-header button,
-html:not(.dark) #task-form-modal-header button {
+#task-export-modal-header button,
+#db-config-modal-header button,
+#logs-modal-header button,
+#folder-browser-modal-header button,
+html:not(.dark) #document-form-modal-header button,
+html:not(.dark) #document-card-modal-header button,
+html:not(.dark) #related-documents-modal-header button,
+html:not(.dark) #task-form-modal-header button,
+html:not(.dark) #task-export-modal-header button,
+html:not(.dark) #db-config-modal-header button,
+html:not(.dark) #logs-modal-header button,
+html:not(.dark) #folder-browser-modal-header button {
   color: #dbeafe !important;
 }
 
+#document-form-modal-header button:hover,
+#document-card-modal-header button:hover,
+#related-documents-modal-header button:hover,
 #task-form-modal-header button:hover,
-html:not(.dark) #task-form-modal-header button:hover {
+#task-export-modal-header button:hover,
+#db-config-modal-header button:hover,
+#logs-modal-header button:hover,
+#folder-browser-modal-header button:hover,
+html:not(.dark) #document-form-modal-header button:hover,
+html:not(.dark) #document-card-modal-header button:hover,
+html:not(.dark) #related-documents-modal-header button:hover,
+html:not(.dark) #task-form-modal-header button:hover,
+html:not(.dark) #task-export-modal-header button:hover,
+html:not(.dark) #db-config-modal-header button:hover,
+html:not(.dark) #logs-modal-header button:hover,
+html:not(.dark) #folder-browser-modal-header button:hover {
   color: #ffffff !important;
   background-color: rgba(29, 78, 216, 0.8) !important;
 }
 
-/* Корректные цвета диалогов и полей формы задач в светлой теме */
-html:not(.dark) #task-form-modal-container {
+/* Корректные цвета диалогов и полей форм всех модальных окон в светлой теме */
+html:not(.dark) #document-form-modal-container,
+html:not(.dark) #document-card-modal-container,
+html:not(.dark) #related-documents-modal-container,
+html:not(.dark) #task-form-modal-container,
+html:not(.dark) #task-export-modal-container,
+html:not(.dark) #db-config-modal-container,
+html:not(.dark) #logs-modal-container,
+html:not(.dark) #folder-browser-modal-container {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) #task-form-modal-container label {
+html:not(.dark) #document-form-modal-container label,
+html:not(.dark) #document-card-modal-container label,
+html:not(.dark) #related-documents-modal-container label,
+html:not(.dark) #task-form-modal-container label,
+html:not(.dark) #task-export-modal-container label,
+html:not(.dark) #db-config-modal-container label,
+html:not(.dark) #logs-modal-container label,
+html:not(.dark) #folder-browser-modal-container label {
   color: #1e293b !important;
 }
 
+html:not(.dark) #document-form-modal-container input:not([type="checkbox"]),
+html:not(.dark) #document-form-modal-container textarea,
+html:not(.dark) #document-form-modal-container select,
 html:not(.dark) #task-form-modal-container input:not([type="checkbox"]),
-html:not(.dark) #task-form-modal-container textarea {
+html:not(.dark) #task-form-modal-container textarea,
+html:not(.dark) #task-export-modal-container input:not([type="checkbox"]),
+html:not(.dark) #db-config-modal-container input:not([type="checkbox"]),
+html:not(.dark) #folder-browser-modal-container input:not([type="checkbox"]) {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
 
+html:not(.dark) #document-form-modal-container input:focus,
+html:not(.dark) #document-form-modal-container textarea:focus,
+html:not(.dark) #document-form-modal-container select:focus,
 html:not(.dark) #task-form-modal-container input:focus,
-html:not(.dark) #task-form-modal-container textarea:focus {
+html:not(.dark) #task-form-modal-container textarea:focus,
+html:not(.dark) #task-export-modal-container input:focus,
+html:not(.dark) #db-config-modal-container input:focus,
+html:not(.dark) #folder-browser-modal-container input:focus {
   border-color: #2563eb !important;
   box-shadow: 0 0 0 1px #2563eb !important;
 }
 
+html:not(.dark) #document-form-modal-container input::placeholder,
+html:not(.dark) #document-form-modal-container textarea::placeholder,
 html:not(.dark) #task-form-modal-container input::placeholder,
-html:not(.dark) #task-form-modal-container textarea::placeholder {
+html:not(.dark) #task-form-modal-container textarea::placeholder,
+html:not(.dark) #task-export-modal-container input::placeholder,
+html:not(.dark) #db-config-modal-container input::placeholder,
+html:not(.dark) #folder-browser-modal-container input::placeholder {
   color: #94a3b8 !important;
 }
 

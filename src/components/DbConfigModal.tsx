@@ -225,7 +225,8 @@ export const DbConfigModal: React.FC<DbConfigModalProps> = ({
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-200`}>
       <div
-        className={`bg-[#171A21] shadow-2xl border border-[#2D3139] overflow-hidden flex flex-col transition-all duration-200 ${
+        id="db-config-modal-container"
+        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[92vw] max-w-4xl max-h-[92vh] rounded-2xl'
@@ -233,19 +234,29 @@ export const DbConfigModal: React.FC<DbConfigModalProps> = ({
       >
         {/* Заголовок (двойной клик разворачивает окно) */}
         <div
+          id="db-config-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-6 py-4 border-b border-[#2D3139] flex items-center justify-between bg-[#12151B]/60 shrink-0 select-none cursor-default"
+          className="px-6 py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
+          style={{ backgroundColor: '#2563eb' }}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-lg bg-blue-950/80 text-blue-400 flex items-center justify-center border border-blue-900/60 shrink-0">
-              <Database className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-blue-700/80 text-white flex items-center justify-center border border-blue-400/40 shrink-0 shadow-xs">
+              <Database className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-base font-bold text-[#E0E0E0] truncate">
+              <h2
+                id="db-config-modal-title"
+                className="text-base font-bold text-white tracking-wide truncate"
+                style={{ color: '#ffffff' }}
+              >
                 {isFirstLaunch ? 'Первоначальная настройка сетевой базы данных' : 'Настройка подключения к БД SQLite'}
               </h2>
-              <p className="text-xs text-gray-400 truncate">
+              <p
+                id="db-config-modal-subtitle"
+                className="text-xs text-blue-100 truncate"
+                style={{ color: '#dbeafe' }}
+              >
                 Сетевой диск SMB / NFS для одновременной работы 6–10 пользователей
               </p>
             </div>
@@ -254,9 +265,9 @@ export const DbConfigModal: React.FC<DbConfigModalProps> = ({
           <div className="flex items-center gap-1 shrink-0 ml-2">
             <button
               type="button"
-              onClick={() => setIsMaximized((prev) => !prev)}
+              onClick={() => setIsMaximized(!isMaximized)}
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
-              className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
@@ -265,7 +276,7 @@ export const DbConfigModal: React.FC<DbConfigModalProps> = ({
                 type="button"
                 onClick={onClose}
                 title="Закрыть окно"
-                className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#1F222B] transition-colors cursor-pointer"
+                className="text-blue-100 hover:text-white p-1.5 rounded-lg hover:bg-blue-700/80 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>

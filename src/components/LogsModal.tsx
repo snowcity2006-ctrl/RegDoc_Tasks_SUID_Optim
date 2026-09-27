@@ -61,7 +61,8 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
       <div
-        className={`bg-[#171A21] text-[#E0E0E0] shadow-2xl border border-[#2D3139] overflow-hidden flex flex-col transition-all duration-200 ${
+        id="logs-modal-container"
+        className={`bg-white dark:bg-[#171A21] text-slate-900 dark:text-[#E0E0E0] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col transition-all duration-200 ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[94vw] max-w-6xl max-h-[92vh] rounded-2xl'
@@ -69,19 +70,29 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
       >
         {/* Заголовок (двойной клик разворачивает окно) */}
         <div
+          id="logs-modal-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает / восстанавливает окно"
-          className="px-6 py-4 border-b border-[#2D3139] flex items-center justify-between bg-[#12151B]/60 shrink-0 select-none cursor-default"
+          className="px-6 py-4 border-b border-blue-500/50 flex items-center justify-between bg-blue-600 text-white shrink-0 select-none cursor-default"
+          style={{ backgroundColor: '#2563eb' }}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-950/80 text-blue-400 flex items-center justify-center border border-blue-900/60 shrink-0">
-              <Terminal className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-blue-700/80 text-white flex items-center justify-center border border-blue-400/40 shrink-0 shadow-xs">
+              <Terminal className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-[#E0E0E0] truncate">
+              <h3
+                id="logs-modal-title"
+                className="text-base font-bold text-white tracking-wide truncate"
+                style={{ color: '#ffffff' }}
+              >
                 Журнал системных событий и ошибок
               </h3>
-              <p className="text-xs text-gray-400 truncate">
+              <p
+                id="logs-modal-subtitle"
+                className="text-xs text-blue-100 truncate"
+                style={{ color: '#dbeafe' }}
+              >
                 Диагностика работы SQLite, сети SMB/NFS и блокировок busy_timeout
               </p>
             </div>
@@ -92,56 +103,56 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
               onClick={loadLogs}
               disabled={loading}
               title="Обновить журнал"
-              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#1F222B] rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-blue-100 hover:text-white hover:bg-blue-700/80 rounded-lg transition-colors cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-400' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-white' : ''}`} />
             </button>
             <button
               onClick={handleCopy}
               title="Скопировать логи в буфер обмена"
-              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#1F222B] rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-blue-100 hover:text-white hover:bg-blue-700/80 rounded-lg transition-colors cursor-pointer"
             >
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
             </button>
             {confirmClear ? (
-              <div className="flex items-center gap-1.5 bg-rose-950/60 border border-rose-800/80 px-2 py-1 rounded-lg text-xs">
-                <span className="text-rose-300 text-[11px] font-medium">Очистить?</span>
+              <div className="flex items-center gap-1.5 bg-blue-800/80 border border-blue-400/40 px-2 py-1 rounded-lg text-xs">
+                <span className="text-white text-[11px] font-medium">Очистить?</span>
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="px-2 py-0.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-[11px] font-semibold cursor-pointer"
+                  className="px-1.5 py-0.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded cursor-pointer"
                 >
                   Да
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirmClear(false)}
-                  className="px-2 py-0.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-[11px] cursor-pointer"
+                  className="px-1.5 py-0.5 bg-blue-700 hover:bg-blue-600 text-white text-[11px] rounded cursor-pointer"
                 >
-                  Отмена
+                  Нет
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => setConfirmClear(true)}
-                title="Очистить логи"
-                className="p-1.5 text-gray-400 hover:text-rose-400 hover:bg-[#1F222B] rounded-lg transition-colors cursor-pointer"
+                title="Очистить журнал"
+                className="p-1.5 text-blue-100 hover:text-rose-200 hover:bg-blue-700/80 rounded-lg transition-colors cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
             <button
               type="button"
-              onClick={() => setIsMaximized((prev) => !prev)}
+              onClick={() => setIsMaximized(!isMaximized)}
               title={isMaximized ? 'Восстановить исходный размер' : 'Развернуть на весь экран'}
-              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#1F222B] rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-blue-100 hover:text-white hover:bg-blue-700/80 rounded-lg transition-colors cursor-pointer"
             >
               {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
             <button
               onClick={onClose}
               title="Закрыть окно"
-              className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="p-1.5 text-blue-100 hover:text-white hover:bg-blue-700/80 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
