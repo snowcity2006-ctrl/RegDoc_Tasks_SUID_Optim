@@ -613,14 +613,15 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75`}>
       <div
         id="document-form-modal-container"
-        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
+        className={`bg-white dark:bg-[#171A21] shadow-xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[94vw] max-w-6xl max-h-[94vh] rounded-2xl'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок формы (двойной клик разворачивает окно) */}
         <div
@@ -675,8 +676,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto overflow-x-hidden space-y-4 sm:space-y-5 text-xs flex-1">
           
           {error && (
-            <div className="p-3.5 bg-rose-950/50 border border-rose-900/60 rounded-xl text-xs text-rose-300 flex items-center gap-2.5 min-w-0">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2.5 min-w-0">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
               <span className="truncate">{error}</span>
             </div>
           )}
@@ -684,9 +685,9 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
           {/* 1. Блок классификации: Тип документа и Направление */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 min-w-0 w-full">
             <div className="min-w-0 w-full">
-              <label className="block font-semibold text-gray-300 mb-1.5 flex items-center gap-1 min-w-0 truncate">
-                <Tag className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span className="truncate">Тип документа <span className="text-rose-400 font-bold">*</span></span>
+              <label className="block font-semibold text-slate-800 dark:text-gray-200 mb-1.5 flex items-center gap-1 min-w-0 truncate">
+                <Tag className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
+                <span className="truncate">Тип документа <span className="text-rose-500 font-bold">*</span></span>
               </label>
               <div className="flex gap-2 min-w-0 w-full items-center">
                 <select
@@ -694,7 +695,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   value={docTypeId}
                   onChange={(e) => setDocTypeId(e.target.value ? Number(e.target.value) : '')}
                   title={selectedDocType ? selectedDocType.name : undefined}
-                  className="w-full min-w-0 flex-1 truncate px-3.5 py-2.5 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs text-[#E0E0E0] focus:outline-none focus:border-blue-500 font-medium transition-colors"
+                  className="w-full min-w-0 flex-1 truncate px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-500 font-medium"
                 >
                   <option value="">-- Выберите тип документа --</option>
                   {documentTypes.map((t) => (
@@ -707,7 +708,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   type="button"
                   onClick={onOpenNewDocTypeModal}
                   title="Добавить новый тип документа в справочник"
-                  className="p-2.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30 transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                  className="p-2.5 bg-blue-50 dark:bg-blue-600/10 hover:bg-blue-100 dark:hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-500/30 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -715,9 +716,9 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             </div>
 
             <div className="min-w-0 w-full">
-              <label className="block font-semibold text-gray-300 mb-1.5 flex items-center gap-1 min-w-0 truncate">
-                <Compass className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span className="truncate">Направление <span className="text-rose-400 font-bold">*</span></span>
+              <label className="block font-semibold text-slate-800 dark:text-gray-200 mb-1.5 flex items-center gap-1 min-w-0 truncate">
+                <Compass className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
+                <span className="truncate">Направление <span className="text-rose-500 font-bold">*</span></span>
               </label>
               <div className="flex gap-2 min-w-0 w-full items-center">
                 <select
@@ -725,7 +726,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   value={directionId}
                   onChange={(e) => setDirectionId(e.target.value ? Number(e.target.value) : '')}
                   title={selectedDirection ? selectedDirection.name : undefined}
-                  className="w-full min-w-0 flex-1 truncate px-3.5 py-2.5 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs text-[#E0E0E0] focus:outline-none focus:border-blue-500 font-medium transition-colors"
+                  className="w-full min-w-0 flex-1 truncate px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-500 font-medium"
                 >
                   <option value="">-- Выберите направление --</option>
                   {directions.map((d) => (
@@ -738,7 +739,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   type="button"
                   onClick={onOpenNewDirectionModal}
                   title="Добавить новое направление в справочник"
-                  className="p-2.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30 transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                  className="p-2.5 bg-blue-50 dark:bg-blue-600/10 hover:bg-blue-100 dark:hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-500/30 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -747,9 +748,9 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
           </div>
 
           {/* 2. Блок номеров и дат: Исходящие и Входящие с календарем */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 sm:p-4 bg-[#0F1115] rounded-xl border border-[#2D3139] min-w-0 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 sm:p-4 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139] min-w-0 w-full">
             <div className="min-w-0 w-full">
-              <label className="block font-semibold text-gray-300 mb-1 truncate">
+              <label className="block font-semibold text-slate-700 dark:text-gray-300 mb-1 truncate">
                 Исх. №
               </label>
               <input
@@ -757,25 +758,25 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                 value={outgoingNumber}
                 onChange={(e) => setOutgoingNumber(e.target.value)}
                 placeholder="Например: ИСХ-102/26"
-                className="w-full min-w-0 px-3 py-2 bg-[#171A21] border border-[#2D3139] rounded-lg text-xs font-mono text-[#E0E0E0] focus:outline-none focus:border-blue-500"
+                className="w-full min-w-0 px-3 py-2 bg-white dark:bg-[#171A21] border border-slate-300 dark:border-[#2D3139] rounded-lg text-xs font-mono text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
               />
             </div>
 
             <div className="min-w-0 w-full">
-              <label className="block font-semibold text-gray-300 mb-1 flex items-center gap-1 min-w-0 truncate">
-                <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <label className="block font-semibold text-slate-700 dark:text-gray-300 mb-1 flex items-center gap-1 min-w-0 truncate">
+                <Calendar className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
                 <span className="truncate">Исх. дата</span>
               </label>
               <input
                 type="date"
                 value={outgoingDate}
                 onChange={(e) => setOutgoingDate(e.target.value)}
-                className="w-full min-w-0 px-3 py-2 bg-[#171A21] border border-[#2D3139] rounded-lg text-xs font-mono text-[#E0E0E0] focus:outline-none focus:border-blue-500"
+                className="w-full min-w-0 px-3 py-2 bg-white dark:bg-[#171A21] border border-slate-300 dark:border-[#2D3139] rounded-lg text-xs font-mono text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-500"
               />
             </div>
 
             <div className="min-w-0 w-full">
-              <label className="block font-semibold text-gray-300 mb-1 truncate">
+              <label className="block font-semibold text-slate-700 dark:text-gray-300 mb-1 truncate">
                 Вх. №
               </label>
               <input
@@ -783,28 +784,28 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                 value={incomingNumber}
                 onChange={(e) => setIncomingNumber(e.target.value)}
                 placeholder="Например: ВХ-00452"
-                className="w-full min-w-0 px-3 py-2 bg-[#171A21] border border-[#2D3139] rounded-lg text-xs font-mono text-[#E0E0E0] focus:outline-none focus:border-blue-500"
+                className="w-full min-w-0 px-3 py-2 bg-white dark:bg-[#171A21] border border-slate-300 dark:border-[#2D3139] rounded-lg text-xs font-mono text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
               />
             </div>
 
             <div className="min-w-0 w-full">
-              <label className="block font-semibold text-gray-300 mb-1 flex items-center gap-1 min-w-0 truncate">
-                <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <label className="block font-semibold text-slate-700 dark:text-gray-300 mb-1 flex items-center gap-1 min-w-0 truncate">
+                <Calendar className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
                 <span className="truncate">Вх. дата</span>
               </label>
               <input
                 type="date"
                 value={incomingDate}
                 onChange={(e) => setIncomingDate(e.target.value)}
-                className="w-full min-w-0 px-3 py-2 bg-[#171A21] border border-[#2D3139] rounded-lg text-xs font-mono text-[#E0E0E0] focus:outline-none focus:border-blue-500"
+                className="w-full min-w-0 px-3 py-2 bg-white dark:bg-[#171A21] border border-slate-300 dark:border-[#2D3139] rounded-lg text-xs font-mono text-slate-900 dark:text-[#E0E0E0] focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
 
           {/* 3. Тема документа */}
           <div className="min-w-0 w-full">
-            <label className="block font-semibold text-gray-300 mb-1.5 min-w-0 truncate">
-              <span className="truncate">Тема (краткое содержание)</span> <span className="text-rose-400 font-bold">*</span>
+            <label className="block font-semibold text-slate-800 dark:text-gray-200 mb-1.5 min-w-0 truncate">
+              <span className="truncate">Тема (краткое содержание)</span> <span className="text-rose-500 font-bold">*</span>
             </label>
             <textarea
               required
@@ -812,15 +813,15 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Опишите краткое содержание или предмет документа..."
-              className="w-full min-w-0 px-3.5 py-2.5 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full min-w-0 px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* 4. Блок: Отправитель (Организация, СП, Исполнитель) */}
-          <div className="p-3.5 sm:p-4 bg-[#0F1115] rounded-xl border border-[#2D3139] space-y-3 min-w-0 w-full">
+          <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139] space-y-3 min-w-0 w-full">
             <div className="flex items-center justify-between min-w-0">
-              <span className="font-semibold text-gray-300 flex items-center gap-1.5 min-w-0 truncate">
-                <Building2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span className="font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1.5 min-w-0 truncate">
+                <Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
                 <span className="truncate">Отправитель</span>
               </span>
               {(senderId || senderDepartmentId || senderEmployeeId || signatoryEmployeeId) && (
@@ -832,7 +833,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                     setSenderEmployeeId('');
                     setSignatoryEmployeeId('');
                   }}
-                  className="text-[11px] text-gray-400 hover:text-rose-400 transition-colors cursor-pointer shrink-0 ml-2"
+                  className="text-[11px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer shrink-0 ml-2"
                 >
                   Очистить отправителя
                 </button>
@@ -841,7 +842,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
 
             {/* Организация */}
             <div className="min-w-0 w-full">
-              <label className="block text-[11px] font-medium text-gray-400 mb-1 truncate">
+              <label className="block text-[11px] font-medium text-slate-600 dark:text-gray-400 mb-1 truncate">
                 Организация
               </label>
               <SearchableCombobox
@@ -859,15 +860,15 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             {/* Структурное подразделение */}
             <div className="min-w-0 w-full">
               <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
-                <label className="text-[11px] font-medium text-gray-400 flex items-center gap-1 min-w-0 truncate">
-                  <Layers className="w-3 h-3 text-blue-400 shrink-0" />
+                <label className="text-[11px] font-medium text-slate-600 dark:text-gray-400 flex items-center gap-1 min-w-0 truncate">
+                  <Layers className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
                   <span className="truncate">Структурное подразделение</span>
                 </label>
                 {senderDepartmentId && (
                   <button
                     type="button"
                     onClick={() => setSenderDepartmentId('')}
-                    className="text-[10px] text-gray-500 hover:text-rose-400 transition-colors shrink-0"
+                    className="text-[10px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors shrink-0"
                   >
                     Сбросить
                   </button>
@@ -891,8 +892,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
               {/* Подписал (Сотрудник) */}
               <div className="min-w-0 w-full flex flex-col justify-between">
                 <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
-                  <label className="text-[11px] font-medium text-gray-400 flex items-center gap-1 min-w-0 truncate">
-                    <UserCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <label className="text-[11px] font-medium text-slate-600 dark:text-gray-400 flex items-center gap-1 min-w-0 truncate">
+                    <UserCheck className="w-3 h-3 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     <span className="truncate">Подписал</span>
                   </label>
                   <div className="flex items-center gap-2 shrink-0">
@@ -901,13 +902,13 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                         type="button"
                         onClick={() => handleSignatoryEmployeeChange(senderEmployeeId)}
                         title="Выбрать того же человека, что указан исполнителем"
-                        className="text-[10px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                        className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium transition-colors"
                       >
                         Как у «Исполнитель»
                       </button>
                     )}
                     {senderEmployeeId && signatoryEmployeeId && senderEmployeeId === signatoryEmployeeId && (
-                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
                         ✓ Тот же сотрудник
                       </span>
                     )}
@@ -915,7 +916,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setSignatoryEmployeeId('')}
-                        className="text-[10px] text-gray-500 hover:text-rose-400 transition-colors"
+                        className="text-[10px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                       >
                         Сбросить
                       </button>
@@ -940,8 +941,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
               {/* Исполнитель (Сотрудник) */}
               <div className="min-w-0 w-full flex flex-col justify-between">
                 <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
-                  <label className="text-[11px] font-medium text-gray-400 flex items-center gap-1 min-w-0 truncate">
-                    <User className="w-3 h-3 text-blue-400 shrink-0" />
+                  <label className="text-[11px] font-medium text-slate-600 dark:text-gray-400 flex items-center gap-1 min-w-0 truncate">
+                    <User className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
                     <span className="truncate">Исполнитель (Сотрудник)</span>
                   </label>
                   <div className="flex items-center gap-2 shrink-0">
@@ -950,13 +951,13 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                         type="button"
                         onClick={() => handleSenderEmployeeChange(signatoryEmployeeId)}
                         title="Выбрать того же человека, что подписал документ"
-                        className="text-[10px] text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                        className="text-[10px] text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                       >
                         Как у «Подписал»
                       </button>
                     )}
                     {senderEmployeeId && signatoryEmployeeId && senderEmployeeId === signatoryEmployeeId && (
-                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
                         ✓ Тот же сотрудник
                       </span>
                     )}
@@ -964,7 +965,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setSenderEmployeeId('')}
-                        className="text-[10px] text-gray-500 hover:text-rose-400 transition-colors"
+                        className="text-[10px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                       >
                         Сбросить
                       </button>
@@ -995,7 +996,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             <SearchableMultiSelect
               id="recipient-orgs-multiselect"
               label="Получатель (множественный выбор)"
-              icon={<Building2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />}
+              icon={<Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />}
               options={recipientOrgOptions}
               selectedIds={recipientIds}
               onChange={setRecipientIds}
@@ -1010,7 +1011,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             <SearchableMultiSelect
               id="recipient-depts-multiselect"
               label="СП для «Получателя» (множественный выбор)"
-              icon={<Layers className="w-3.5 h-3.5 text-indigo-400 shrink-0" />}
+              icon={<Layers className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />}
               options={recipientDeptOptions}
               selectedIds={recipientDepartmentIds}
               onChange={setRecipientDepartmentIds}
@@ -1031,15 +1032,15 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             {/* Путь к сетевой папке/файлу */}
             <div className="min-w-0 w-full">
               <div className="flex items-center justify-between gap-2 mb-1.5 min-w-0">
-                <label className="font-semibold text-gray-300 flex items-center gap-1 min-w-0 truncate text-xs">
-                  <FolderOpen className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <label className="font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1 min-w-0 truncate text-xs">
+                  <FolderOpen className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
                   <span className="truncate">Путь к документу (гиперссылка на сетевую папку или файл)</span>
                 </label>
                 {filePath && (
                   <button
                     type="button"
                     onClick={() => setFilePath('')}
-                    className="text-[11px] text-gray-400 hover:text-rose-400 transition-colors cursor-pointer shrink-0"
+                    className="text-[11px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer shrink-0"
                     title="Очистить поле пути"
                   >
                     Очистить
@@ -1052,25 +1053,25 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   value={filePath}
                   onChange={(e) => handleFilePathChange(e.target.value)}
                   placeholder="@nadym-dobycha.gazprom.ru/mnt/... или /home/user@nadym-dobycha.gazprom.ru/mnt/..."
-                  className="flex-1 min-w-0 px-3.5 py-2 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs font-mono text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
+                  className="flex-1 min-w-0 px-3.5 py-2 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs font-mono text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
                 />
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
                     onClick={handleBrowseFile}
                     title="Открыть окно операционной среды для выбора конкретного файла"
-                    className="px-3 py-2 bg-[#0F1115] hover:bg-[#1F222B] text-gray-300 hover:text-white rounded-xl font-medium text-xs flex items-center gap-1.5 transition-colors border border-[#2D3139] cursor-pointer"
+                    className="px-3 py-2 bg-slate-100 dark:bg-[#0F1115] hover:bg-slate-200 dark:hover:bg-[#1F222B] text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white rounded-xl font-medium text-xs flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-[#2D3139] cursor-pointer"
                   >
-                    <Paperclip className="w-3.5 h-3.5 text-blue-400" />
+                    <Paperclip className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                     <span>Файл</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleBrowseFolder}
                     title="Открыть окно операционной среды для выбора папки с файлами"
-                    className="px-3 py-2 bg-[#0F1115] hover:bg-[#1F222B] text-gray-300 hover:text-white rounded-xl font-medium text-xs flex items-center gap-1.5 transition-colors border border-[#2D3139] cursor-pointer"
+                    className="px-3 py-2 bg-slate-100 dark:bg-[#0F1115] hover:bg-slate-200 dark:hover:bg-[#1F222B] text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white rounded-xl font-medium text-xs flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-[#2D3139] cursor-pointer"
                   >
-                    <FolderOpen className="w-3.5 h-3.5 text-emerald-400" />
+                    <FolderOpen className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                     <span>Папка</span>
                   </button>
                 </div>
@@ -1080,15 +1081,15 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             {/* Путь к документу в СЭД с кнопкой/иконкой вставки из буфера обмена */}
             <div className="min-w-0 w-full">
               <div className="flex items-center justify-between gap-2 mb-1.5 min-w-0">
-                <label className="font-semibold text-gray-300 flex items-center gap-1 min-w-0 truncate">
-                  <Globe className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <label className="font-semibold text-slate-800 dark:text-gray-200 flex items-center gap-1 min-w-0 truncate">
+                  <Globe className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
                   <span className="truncate">Путь к документу в СЭД (гиперссылка в формате интернет браузера)</span>
                 </label>
                 {sedUrl && (
                   <button
                     type="button"
                     onClick={() => setSedUrl('')}
-                    className="text-[11px] text-gray-400 hover:text-rose-400 transition-colors cursor-pointer shrink-0"
+                    className="text-[11px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer shrink-0"
                   >
                     Очистить
                   </button>
@@ -1101,7 +1102,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                     value={sedUrl}
                     onChange={(e) => setSedUrl(e.target.value)}
                     placeholder="https://sed.company.local/documents/card/12345"
-                    className="w-full min-w-0 px-3.5 py-2.5 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs font-mono text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
+                    className="w-full min-w-0 px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs font-mono text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 {/* Иконка / кнопка вставки ссылки из буфера обмена */}
@@ -1111,18 +1112,18 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   title="Вставить ссылку из буфера обмена"
                   className={`px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition-all border cursor-pointer shrink-0 ${
                     pastedFeedback
-                      ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300'
-                      : 'bg-[#0F1115] hover:bg-[#1F222B] text-gray-300 hover:text-blue-400 border-[#2D3139] hover:border-blue-500/40'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-500/50 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-slate-100 dark:bg-[#0F1115] hover:bg-slate-200 dark:hover:bg-[#1F222B] text-slate-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-slate-200 dark:border-[#2D3139] hover:border-blue-500/40'
                   }`}
                 >
                   {pastedFeedback ? (
                     <>
-                      <Check className="w-4 h-4 text-emerald-400 animate-in zoom-in-50 duration-150 shrink-0" />
-                      <span className="text-emerald-400 font-semibold whitespace-nowrap">Вставлено!</span>
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold whitespace-nowrap">Вставлено!</span>
                     </>
                   ) : (
                     <>
-                      <ClipboardPaste className="w-4 h-4 text-blue-400 shrink-0" />
+                      <ClipboardPaste className="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0" />
                       <span className="whitespace-nowrap">Вставить из буфера</span>
                     </>
                   )}
@@ -1135,7 +1136,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
           <div className="min-w-0 w-full">
             <div className="flex flex-col sm:flex-row items-end gap-3 min-w-0 w-full">
               <div className="flex-1 min-w-0 w-full">
-                <label className="block font-semibold text-gray-300 mb-1 truncate">
+                <label className="block font-semibold text-slate-800 dark:text-gray-200 mb-1 truncate">
                   Примечания и комментарии
                 </label>
                 <input
@@ -1143,7 +1144,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
                   placeholder="Дополнительные сведения, резолюция, ответственный исполнитель..."
-                  className="w-full min-w-0 px-3.5 py-2.5 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full min-w-0 px-3.5 py-2.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] rounded-xl text-xs text-slate-900 dark:text-[#E0E0E0] placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -1152,13 +1153,13 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsRelatedModalOpen(true)}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white dark:bg-[#0F1115] dark:hover:bg-[#1F222B] dark:text-gray-200 dark:hover:text-white rounded-xl text-xs font-semibold flex items-center gap-2 border border-blue-600 dark:border-[#2D3139] hover:border-blue-500/50 shadow-xs shadow-blue-500/20 dark:shadow-none transition-colors cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 border border-blue-600 hover:border-blue-700 shadow-xs shadow-blue-500/20 transition-colors cursor-pointer whitespace-nowrap"
                   title="Открыть форму «Связанные документы»"
                 >
-                  <Link2 className="w-4 h-4 text-white dark:text-blue-400 shrink-0" />
+                  <Link2 className="w-4 h-4 text-white shrink-0" />
                   <span>Добавить связанные документы</span>
                   {relatedDocIds.length > 0 && (
-                    <span className="ml-1 px-2 py-0.5 bg-white/20 text-white border border-white/30 dark:bg-blue-600/30 dark:text-blue-300 dark:border-blue-500/40 rounded-full text-[11px] font-bold">
+                    <span className="ml-1 px-2 py-0.5 bg-white/20 text-white border border-white/30 rounded-full text-[11px] font-bold">
                       {relatedDocIds.length}
                     </span>
                   )}
@@ -1168,16 +1169,16 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
 
             {/* Отображение выбранных связанных документов */}
             {relatedDocIds.length > 0 && (
-              <div className="mt-2.5 p-2.5 bg-blue-600 text-white border border-blue-500 dark:bg-[#0F1115]/80 dark:border-[#2D3139] dark:text-[#E0E0E0] rounded-xl shadow-xs shadow-blue-500/20 dark:shadow-none">
+              <div className="mt-2.5 p-2.5 bg-blue-50 dark:bg-[#0F1115]/80 text-slate-900 dark:text-[#E0E0E0] border border-blue-200 dark:border-[#2D3139] rounded-xl">
                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="text-[11px] font-semibold text-white dark:text-gray-400 flex items-center gap-1">
-                    <Link2 className="w-3 h-3 text-white dark:text-blue-400" />
+                  <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-400 flex items-center gap-1">
+                    <Link2 className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                     Выбранные связанные документы ({relatedDocIds.length}):
                   </span>
                   <button
                     type="button"
                     onClick={() => setRelatedDocIds([])}
-                    className="text-[10px] text-blue-100 hover:text-white dark:text-gray-400 dark:hover:text-red-400 transition-colors cursor-pointer"
+                    className="text-[10px] text-slate-500 hover:text-rose-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors cursor-pointer"
                   >
                     Очистить все
                   </button>
@@ -1192,14 +1193,14 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
                     return (
                       <span
                         key={rId}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-700/60 border border-blue-400/40 text-white dark:bg-[#1F222B] dark:border-[#2D3139] dark:text-[#E0E0E0] rounded-lg text-xs max-w-xs truncate"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-[#1F222B] border border-blue-200 dark:border-[#2D3139] text-slate-800 dark:text-[#E0E0E0] rounded-lg text-xs max-w-xs truncate shadow-xs"
                         title={label}
                       >
                         <span className="truncate">{label}</span>
                         <button
                           type="button"
                           onClick={() => setRelatedDocIds((prev) => prev.filter((id) => id !== rId))}
-                          className="text-blue-200 hover:text-white dark:text-gray-400 dark:hover:text-red-400 p-0.5 transition-colors cursor-pointer"
+                          className="text-slate-400 hover:text-rose-600 dark:text-gray-400 dark:hover:text-red-400 p-0.5 transition-colors cursor-pointer"
                           title="Удалить связь"
                         >
                           <X className="w-3 h-3" />
@@ -1213,11 +1214,11 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
           </div>
 
           {/* Футер формы с кнопкой Сохранить */}
-          <div className="pt-4 border-t border-[#2D3139] flex items-center justify-end gap-2 shrink-0">
+          <div className="pt-4 border-t border-slate-200 dark:border-[#2D3139] flex items-center justify-end gap-2 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-400 hover:text-white text-xs font-semibold rounded-xl hover:bg-[#1F222B] transition-colors cursor-pointer"
+              className="px-4 py-2 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-[#1F222B] transition-colors cursor-pointer"
             >
               Отмена
             </button>

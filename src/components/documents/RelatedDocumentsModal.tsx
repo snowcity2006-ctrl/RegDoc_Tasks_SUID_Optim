@@ -180,15 +180,16 @@ export const RelatedDocumentsModal: React.FC<RelatedDocumentsModalProps> = ({
     <div
       className={`fixed inset-0 z-[70] flex items-center justify-center ${
         isMaximized ? 'p-1' : 'p-2 sm:p-4'
-      } bg-black/80 backdrop-blur-xs animate-in fade-in duration-150`}
+      } bg-black/80`}
     >
       <div
         id="related-documents-modal-container"
-        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
+        className={`bg-white dark:bg-[#171A21] shadow-xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[95vw] max-w-7xl h-[92vh] rounded-2xl'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок формы */}
         <div

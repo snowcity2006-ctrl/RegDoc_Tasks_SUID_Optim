@@ -73,14 +73,15 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
   };
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75`}>
       <div
         id="document-card-modal-container"
-        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
+        className={`bg-white dark:bg-[#171A21] shadow-xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[92vw] max-w-5xl max-h-[92vh] rounded-2xl'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок карточки (двойной клик разворачивает окно) */}
         <div
@@ -100,8 +101,8 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
                 className="text-base font-bold text-white flex items-center gap-2 flex-wrap"
                 style={{ color: '#ffffff' }}
               >
-                <span>Карточка документа №{doc.id}</span>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-700/80 border border-blue-400/40 text-white font-mono shadow-xs">
+                <span style={{ color: '#ffffff' }}>Карточка документа №{doc.id}</span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-700/80 border border-blue-400/40 text-white font-mono shadow-xs" style={{ color: '#ffffff' }}>
                   {doc.docTypeName}
                 </span>
               </h3>
@@ -155,33 +156,33 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-5 text-xs flex-1">
           
           {/* Тема документа */}
-          <div className="p-4 bg-[#0F1115] rounded-xl border border-[#2D3139]">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+          <div className="p-4 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139]">
+            <span className="text-[11px] font-semibold text-slate-600 dark:text-gray-400 uppercase tracking-wider block mb-1">
               Тема / Краткое содержание
             </span>
-            <p className="text-sm font-semibold text-[#E0E0E0] leading-relaxed">
+            <p className="text-sm font-semibold text-slate-900 dark:text-[#E0E0E0] leading-relaxed">
               {doc.subject}
             </p>
           </div>
 
           {/* Классификация */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-[#0F1115] rounded-xl border border-[#2D3139]">
-              <span className="text-gray-400 text-[11px] flex items-center gap-1 mb-1">
-                <Tag className="w-3.5 h-3.5 text-blue-400" />
+            <div className="p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139]">
+              <span className="text-slate-600 dark:text-gray-400 text-[11px] flex items-center gap-1 mb-1 font-medium">
+                <Tag className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                 Тип документа
               </span>
-              <p className="font-semibold text-[#E0E0E0]">
+              <p className="font-semibold text-slate-900 dark:text-[#E0E0E0]">
                 {doc.docTypeName || '—'}
               </p>
             </div>
 
-            <div className="p-3 bg-[#0F1115] rounded-xl border border-[#2D3139]">
-              <span className="text-gray-400 text-[11px] flex items-center gap-1 mb-1">
-                <Compass className="w-3.5 h-3.5 text-blue-400" />
+            <div className="p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139]">
+              <span className="text-slate-600 dark:text-gray-400 text-[11px] flex items-center gap-1 mb-1 font-medium">
+                <Compass className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                 Направление
               </span>
-              <p className="font-semibold text-[#E0E0E0]">
+              <p className="font-semibold text-slate-900 dark:text-[#E0E0E0]">
                 {doc.directionName || '—'}
               </p>
             </div>
@@ -189,37 +190,37 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
 
           {/* Исходящие и Входящие реквизиты */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3.5 bg-[#0F1115] rounded-xl border border-[#2D3139] space-y-1.5">
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139] space-y-1.5">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wider block">
                 Исходящие реквизиты
               </span>
               <div className="flex justify-between">
-                <span className="text-gray-400">Исх. №:</span>
-                <span className="font-mono font-semibold text-[#E0E0E0]">
+                <span className="text-slate-600 dark:text-gray-400">Исх. №:</span>
+                <span className="font-mono font-semibold text-slate-900 dark:text-[#E0E0E0]">
                   {doc.outgoingNumber || '—'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Исх. дата:</span>
-                <span className="font-mono text-[#E0E0E0]">
+                <span className="text-slate-600 dark:text-gray-400">Исх. дата:</span>
+                <span className="font-mono text-slate-900 dark:text-[#E0E0E0]">
                   {formatDateRussian(doc.outgoingDate)}
                 </span>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#0F1115] rounded-xl border border-[#2D3139] space-y-1.5">
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139] space-y-1.5">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wider block">
                 Входящие реквизиты
               </span>
               <div className="flex justify-between">
-                <span className="text-gray-400">Вх. №:</span>
-                <span className="font-mono font-semibold text-[#E0E0E0]">
+                <span className="text-slate-600 dark:text-gray-400">Вх. №:</span>
+                <span className="font-mono font-semibold text-slate-900 dark:text-[#E0E0E0]">
                   {doc.incomingNumber || '—'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Вх. дата:</span>
-                <span className="font-mono text-[#E0E0E0]">
+                <span className="text-slate-600 dark:text-gray-400">Вх. дата:</span>
+                <span className="font-mono text-slate-900 dark:text-[#E0E0E0]">
                   {formatDateRussian(doc.incomingDate)}
                 </span>
               </div>
@@ -228,49 +229,49 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
 
           {/* Стороны: Отправитель и Получатель */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3 bg-[#0F1115] rounded-xl border border-[#2D3139]">
-              <span className="text-gray-400 text-[11px] flex items-center gap-1 mb-1">
-                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            <div className="p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139]">
+              <span className="text-slate-600 dark:text-gray-400 text-[11px] flex items-center gap-1 mb-1 font-medium">
+                <Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                 Отправитель
               </span>
-              <p className="font-semibold text-[#E0E0E0]">
+              <p className="font-semibold text-slate-900 dark:text-[#E0E0E0]">
                 {doc.senderName || '—'}
               </p>
               {(doc.senderDepartmentName || doc.signatoryEmployeeName || doc.senderEmployeeName) && (
-                <div className="mt-2 pt-2 border-t border-[#2D3139]/60 space-y-1">
+                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-[#2D3139]/60 space-y-1">
                   {doc.senderDepartmentName && (
                     <div className="text-xs">
-                      <span className="text-gray-400 text-[10px] block mb-0.5">Структурное подразделение:</span>
-                      <span className="text-blue-400 font-medium">{doc.senderDepartmentName}</span>
+                      <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">Структурное подразделение:</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-medium">{doc.senderDepartmentName}</span>
                     </div>
                   )}
                   {doc.signatoryEmployeeName && (
                     <div className="text-xs">
-                      <span className="text-gray-400 text-[10px] block mb-0.5">Подписал:</span>
-                      <span className="text-emerald-400 font-medium">{doc.signatoryEmployeeName}</span>
+                      <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">Подписал:</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">{doc.signatoryEmployeeName}</span>
                     </div>
                   )}
                   {doc.senderEmployeeName && (
                     <div className="text-xs">
-                      <span className="text-gray-400 text-[10px] block mb-0.5">Исполнитель:</span>
-                      <span className="text-gray-200 font-medium">{doc.senderEmployeeName}</span>
+                      <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">Исполнитель:</span>
+                      <span className="text-slate-700 dark:text-gray-200 font-medium">{doc.senderEmployeeName}</span>
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            <div className="p-3 bg-[#0F1115] rounded-xl border border-[#2D3139]">
-              <span className="text-gray-400 text-[11px] flex items-center gap-1 mb-1">
-                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            <div className="p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139]">
+              <span className="text-slate-600 dark:text-gray-400 text-[11px] flex items-center gap-1 mb-1 font-medium">
+                <Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                 Получатель
               </span>
-              <p className="font-semibold text-[#E0E0E0]">
+              <p className="font-semibold text-slate-900 dark:text-[#E0E0E0]">
                 {doc.recipientName || '—'}
               </p>
               {doc.recipientDepartmentNames && (
-                <div className="mt-2 pt-2 border-t border-[#2D3139]/60">
-                  <span className="text-gray-400 text-[10px] block mb-0.5">Структурные подразделения:</span>
+                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-[#2D3139]/60">
+                  <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">Структурные подразделения:</span>
                   <span className="text-indigo-600 dark:text-indigo-300 font-medium text-xs">
                     {doc.recipientDepartmentNames}
                   </span>
@@ -289,19 +290,19 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
                 const resolvedPath = resolveAstraPathForOpening(doc.filePath, localUser);
 
                 return (
-                  <div className={`p-3 bg-[#0F1115] rounded-xl border ${isFolder ? 'border-emerald-500/30' : 'border-blue-500/30'} flex flex-col gap-2`}>
+                  <div className={`p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border ${isFolder ? 'border-emerald-300 dark:border-emerald-500/30' : 'border-blue-300 dark:border-blue-500/30'} flex flex-col gap-2`}>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 overflow-hidden pr-2">
                         {isFolder ? (
-                          <FolderOpen className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <FolderOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         ) : (
-                          <FileText className="w-4 h-4 text-blue-400 shrink-0" />
+                          <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                         )}
                         <div className="truncate">
-                          <span className="text-[10px] text-gray-400 block">
+                          <span className="text-[10px] text-slate-500 dark:text-gray-400 block">
                             {isFolder ? 'Сетевая папка документа (ссылка в БД)' : 'Файл документа (сетевая ссылка в БД)'}
                           </span>
-                          <span className={`font-mono ${isFolder ? 'text-emerald-400' : 'text-blue-400'} font-medium truncate block select-all`}>
+                          <span className={`font-mono ${isFolder ? 'text-emerald-700 dark:text-emerald-400' : 'text-blue-700 dark:text-blue-400'} font-medium truncate block select-all`}>
                             {doc.filePath}
                           </span>
                         </div>
@@ -318,12 +319,12 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
 
                     {/* Разрешение пути для Astra Linux на текущей рабочей станции */}
                     {isAstra && (
-                      <div className="pt-2 border-t border-[#1F222B] text-[11px] flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-gray-400">
-                        <div className="flex items-center gap-1.5 text-amber-300/90 font-medium">
-                          <Laptop className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <div className="pt-2 border-t border-slate-200 dark:border-[#1F222B] text-[11px] flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-slate-600 dark:text-gray-400">
+                        <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-300/90 font-medium">
+                          <Laptop className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
                           <span>На этом компьютере ({localUser}):</span>
                         </div>
-                        <span className="font-mono text-gray-300 truncate bg-[#14171E] px-2 py-0.5 rounded border border-[#222630] select-all">
+                        <span className="font-mono text-slate-800 dark:text-gray-300 truncate bg-slate-100 dark:bg-[#14171E] px-2 py-0.5 rounded border border-slate-200 dark:border-[#222630] select-all">
                           {resolvedPath}
                         </span>
                       </div>
@@ -332,19 +333,19 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
                 );
               })()
             ) : (
-              <div className="p-3 bg-[#0F1115] rounded-xl border border-[#2D3139] text-gray-400 flex items-center gap-2">
+              <div className="p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139] text-slate-500 dark:text-gray-400 flex items-center gap-2">
                 <FolderOpen className="w-4 h-4" />
                 <span>Файл или папка документа не прикреплены</span>
               </div>
             )}
 
             {doc.sedUrl ? (
-              <div className="p-3 bg-[#0F1115] rounded-xl border border-blue-500/30 flex items-center justify-between">
+              <div className="p-3 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-blue-200 dark:border-blue-500/30 flex items-center justify-between">
                 <div className="flex items-center gap-2 overflow-hidden pr-2">
-                  <Globe className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Globe className="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0" />
                   <div className="truncate">
-                    <span className="text-[10px] text-gray-400 block">Электронная карточка в СЭД</span>
-                    <span className="font-mono text-blue-400 font-medium truncate block">
+                    <span className="text-[10px] text-slate-500 dark:text-gray-400 block">Электронная карточка в СЭД</span>
+                    <span className="font-mono text-blue-600 dark:text-blue-400 font-medium truncate block">
                       {doc.sedUrl}
                     </span>
                   </div>
@@ -362,8 +363,8 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
 
           {/* Связанные документы */}
           {relatedDocs.length > 0 && (
-            <div className="p-3.5 bg-[#0F1115] rounded-xl border border-blue-500/25">
-              <span className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider block mb-2.5 flex items-center gap-1.5">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-blue-200 dark:border-blue-500/25">
+              <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider block mb-2.5 flex items-center gap-1.5">
                 <Link2 className="w-3.5 h-3.5" />
                 Взаимосвязанные документы ({relatedDocs.length})
               </span>
@@ -372,29 +373,29 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
                   <div
                     key={rDoc.id}
                     onClick={() => onViewDoc?.(rDoc)}
-                    className="p-2 bg-[#171A21] hover:bg-[#1F222B] border border-[#2D3139] hover:border-blue-500/40 rounded-lg flex items-center justify-between gap-3 group cursor-pointer transition-all select-none"
+                    className="p-2 bg-white dark:bg-[#171A21] hover:bg-slate-100 dark:hover:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] hover:border-blue-400 dark:hover:border-blue-500/40 rounded-lg flex items-center justify-between gap-3 group cursor-pointer transition-all select-none shadow-xs"
                     title="Нажмите, чтобы открыть карточку этого связанного документа"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-blue-400">№{rDoc.id}</span>
+                        <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">№{rDoc.id}</span>
                         {rDoc.docTypeName && (
-                          <span className="text-[11px] text-gray-300 font-medium">{rDoc.docTypeName}</span>
+                          <span className="text-[11px] text-slate-700 dark:text-gray-300 font-medium">{rDoc.docTypeName}</span>
                         )}
                         {rDoc.outgoingNumber && (
-                          <span className="text-[10px] text-gray-400 font-mono bg-[#0F1115] px-1.5 py-0.5 rounded border border-[#2D3139]">
+                          <span className="text-[10px] text-slate-600 dark:text-gray-400 font-mono bg-slate-100 dark:bg-[#0F1115] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#2D3139]">
                             Исх: {rDoc.outgoingNumber}
                           </span>
                         )}
                         {rDoc.incomingNumber && (
-                          <span className="text-[10px] text-gray-400 font-mono bg-[#0F1115] px-1.5 py-0.5 rounded border border-[#2D3139]">
+                          <span className="text-[10px] text-slate-600 dark:text-gray-400 font-mono bg-slate-100 dark:bg-[#0F1115] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#2D3139]">
                             Вх: {rDoc.incomingNumber}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-200 truncate font-medium">{rDoc.subject}</p>
+                      <p className="text-xs text-slate-800 dark:text-gray-200 truncate font-medium">{rDoc.subject}</p>
                     </div>
-                    <div className="p-1 text-gray-400 group-hover:text-blue-400 transition-colors shrink-0">
+                    <div className="p-1 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0">
                       <Eye className="w-4 h-4" />
                     </div>
                   </div>
@@ -405,12 +406,12 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
 
           {/* Примечания */}
           {doc.comments && (
-            <div className="p-3.5 bg-[#0F1115] rounded-xl border border-[#2D3139]">
-              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1 flex items-center gap-1">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#0F1115] rounded-xl border border-slate-200 dark:border-[#2D3139]">
+              <span className="text-[11px] font-semibold text-slate-600 dark:text-gray-400 uppercase tracking-wider block mb-1 flex items-center gap-1">
                 <MessageSquare className="w-3.5 h-3.5" />
                 Примечания
               </span>
-              <p className="text-[#E0E0E0] leading-relaxed">
+              <p className="text-slate-800 dark:text-[#E0E0E0] leading-relaxed">
                 {doc.comments}
               </p>
             </div>
@@ -419,14 +420,14 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
         </div>
 
         {/* Футер */}
-        <div className="px-6 py-3.5 border-t border-[#2D3139] bg-[#1F222B] flex items-center justify-between text-xs text-gray-400 shrink-0">
+        <div className="px-6 py-3.5 border-t border-slate-200 dark:border-[#2D3139] bg-slate-50 dark:bg-[#1F222B] flex items-center justify-between text-xs text-slate-500 dark:text-gray-400 shrink-0">
           <div className="flex items-center gap-1 text-[11px]">
             <Clock className="w-3.5 h-3.5" />
             <span>Обновлено: {formatDateTimeRussian(doc.updatedAt)}</span>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-[#0F1115] border border-[#2D3139] hover:bg-[#2D3139] text-[#E0E0E0] rounded-xl font-semibold transition-colors cursor-pointer"
+            className="px-4 py-1.5 bg-white dark:bg-[#0F1115] border border-slate-300 dark:border-[#2D3139] hover:bg-slate-100 dark:hover:bg-[#2D3139] text-slate-800 dark:text-[#E0E0E0] rounded-xl font-semibold transition-colors cursor-pointer shadow-xs"
           >
             Закрыть
           </button>
