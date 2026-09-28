@@ -275,7 +275,7 @@ function SearchableMultiSelectComponent<T extends number | string = number>({
 
       {/* Выпадающее окно со списком совпадений и чекбоксами */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-100">
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-xl overflow-hidden">
           {/* Информационная панель и быстрые действия */}
           <div className="p-2.5 border-b border-slate-200 dark:border-[#2D3139] bg-slate-50 dark:bg-[#171A21] flex items-center justify-between text-[11px] text-slate-500 dark:text-gray-400">
             <span className="flex items-center gap-1 truncate">

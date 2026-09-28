@@ -54,7 +54,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div id="error-boundary-screen" className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-6 select-none">
-          <div className="max-w-lg w-full bg-slate-800/95 border border-slate-700/80 rounded-xl p-8 shadow-2xl backdrop-blur">
+          <div className="max-w-lg w-full bg-slate-800 border border-slate-700/80 rounded-xl p-8 shadow-xl">
             <div className="flex items-center gap-3 text-rose-400 mb-4">
               <AlertTriangle className="w-8 h-8 flex-shrink-0" />
               <div>

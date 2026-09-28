@@ -124,7 +124,7 @@ export const DocumentFilters: React.FC<DocumentFiltersProps> = React.memo(({
 
       {/* Развернутая панель расширенных фильтров */}
       {expanded && (
-        <div className="pt-3 border-t border-[#2D3139] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="pt-3 border-t border-[#2D3139] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           
           {/* Тип документа */}
           <div>

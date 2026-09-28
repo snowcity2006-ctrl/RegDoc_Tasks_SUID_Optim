@@ -51,9 +51,30 @@
 .backdrop-blur-md,
 .backdrop-blur-lg,
 .backdrop-blur-xl,
-.backdrop-blur {
+.backdrop-blur,
+[class*="backdrop-blur"] {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+/* Полное отключение CSS-анимаций входа и выпадающих меню в Astra Linux:
+   В режиме программной растеризации без GPU анимация прозрачности (fade-in) на весь экран
+   заставляет процессор перерисовывать сотни тысяч пикселей за кадр при вызове любых форм,
+   создавая резкий скачок загрузки CPU с 1% до 13%. Мгновенное появление устраняет спайк. */
+.animate-in,
+[class*="animate-in"],
+[class*="fade-in"],
+[class*="zoom-in"],
+[class*="slide-in"] {
+  animation: none !important;
+  -webkit-animation: none !important;
+  transition-property: none !important;
+}
+
+/* Оптимизация ресурсоемких теней box-shadow в программном рендеринге:
+   Тени с радиусом размытия 50px заменяются на производительные компактные тени */
+.shadow-2xl {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Оптимизация полей ввода для устранения задержки при быстром наборе текста:
@@ -962,6 +983,9 @@ html:not(.dark) .directory-modal-header h3 * {
 #related-documents-modal-container,
 #task-form-modal-container,
 #task-export-modal-container,
+#task-delete-dialog,
+#suid-modal-container,
+#suid-detail-modal-container,
 #db-config-modal-container,
 #logs-modal-container,
 #folder-browser-modal-container,
@@ -1040,6 +1064,14 @@ html:not(.dark) #document-card-modal-container,
 html:not(.dark) #related-documents-modal-container,
 html:not(.dark) #task-form-modal-container,
 html:not(.dark) #task-export-modal-container,
+html:not(.dark) #suid-modal-container,
+html:not(.dark) #suid-detail-modal-container,
+html:not(.dark) #employee-modal-dialog,
+html:not(.dark) #department-modal-dialog,
+html:not(.dark) #organization-modal-dialog,
+html:not(.dark) #doctype-modal-dialog,
+html:not(.dark) #direction-modal-dialog,
+html:not(.dark) #project-modal-dialog,
 html:not(.dark) #db-config-modal-container,
 html:not(.dark) #logs-modal-container,
 html:not(.dark) #folder-browser-modal-container {
@@ -1053,6 +1085,14 @@ html:not(.dark) #document-card-modal-container label,
 html:not(.dark) #related-documents-modal-container label,
 html:not(.dark) #task-form-modal-container label,
 html:not(.dark) #task-export-modal-container label,
+html:not(.dark) #suid-modal-container label,
+html:not(.dark) #suid-detail-modal-container label,
+html:not(.dark) #employee-modal-dialog label,
+html:not(.dark) #department-modal-dialog label,
+html:not(.dark) #organization-modal-dialog label,
+html:not(.dark) #doctype-modal-dialog label,
+html:not(.dark) #direction-modal-dialog label,
+html:not(.dark) #project-modal-dialog label,
 html:not(.dark) #db-config-modal-container label,
 html:not(.dark) #logs-modal-container label,
 html:not(.dark) #folder-browser-modal-container label {
@@ -1065,6 +1105,17 @@ html:not(.dark) #document-form-modal-container select,
 html:not(.dark) #task-form-modal-container input:not([type="checkbox"]),
 html:not(.dark) #task-form-modal-container textarea,
 html:not(.dark) #task-export-modal-container input:not([type="checkbox"]),
+html:not(.dark) #suid-modal-container input:not([type="checkbox"]),
+html:not(.dark) #suid-modal-container textarea,
+html:not(.dark) #suid-modal-container select,
+html:not(.dark) #employee-modal-dialog input:not([type="checkbox"]),
+html:not(.dark) #employee-modal-dialog select,
+html:not(.dark) #department-modal-dialog input:not([type="checkbox"]),
+html:not(.dark) #department-modal-dialog select,
+html:not(.dark) #organization-modal-dialog input:not([type="checkbox"]),
+html:not(.dark) #doctype-modal-dialog input:not([type="checkbox"]),
+html:not(.dark) #direction-modal-dialog input:not([type="checkbox"]),
+html:not(.dark) #project-modal-dialog input:not([type="checkbox"]),
 html:not(.dark) #db-config-modal-container input:not([type="checkbox"]),
 html:not(.dark) #folder-browser-modal-container input:not([type="checkbox"]) {
   background-color: #ffffff !important;
@@ -1078,6 +1129,15 @@ html:not(.dark) #document-form-modal-container select:focus,
 html:not(.dark) #task-form-modal-container input:focus,
 html:not(.dark) #task-form-modal-container textarea:focus,
 html:not(.dark) #task-export-modal-container input:focus,
+html:not(.dark) #suid-modal-container input:focus,
+html:not(.dark) #suid-modal-container textarea:focus,
+html:not(.dark) #suid-modal-container select:focus,
+html:not(.dark) #employee-modal-dialog input:focus,
+html:not(.dark) #department-modal-dialog input:focus,
+html:not(.dark) #organization-modal-dialog input:focus,
+html:not(.dark) #doctype-modal-dialog input:focus,
+html:not(.dark) #direction-modal-dialog input:focus,
+html:not(.dark) #project-modal-dialog input:focus,
 html:not(.dark) #db-config-modal-container input:focus,
 html:not(.dark) #folder-browser-modal-container input:focus {
   border-color: #2563eb !important;
@@ -1089,6 +1149,14 @@ html:not(.dark) #document-form-modal-container textarea::placeholder,
 html:not(.dark) #task-form-modal-container input::placeholder,
 html:not(.dark) #task-form-modal-container textarea::placeholder,
 html:not(.dark) #task-export-modal-container input::placeholder,
+html:not(.dark) #suid-modal-container input::placeholder,
+html:not(.dark) #suid-modal-container textarea::placeholder,
+html:not(.dark) #employee-modal-dialog input::placeholder,
+html:not(.dark) #department-modal-dialog input::placeholder,
+html:not(.dark) #organization-modal-dialog input::placeholder,
+html:not(.dark) #doctype-modal-dialog input::placeholder,
+html:not(.dark) #direction-modal-dialog input::placeholder,
+html:not(.dark) #project-modal-dialog input::placeholder,
 html:not(.dark) #db-config-modal-container input::placeholder,
 html:not(.dark) #folder-browser-modal-container input::placeholder {
   color: #94a3b8 !important;

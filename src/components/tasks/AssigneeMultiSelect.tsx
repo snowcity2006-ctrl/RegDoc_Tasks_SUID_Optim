@@ -197,7 +197,7 @@ export const AssigneeMultiSelect: React.FC<AssigneeMultiSelectProps> = React.mem
 
       {/* Выпадающая панель с полем ввода и списком исполнителей */}
       {isOpen && (
-        <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-[#171A21] border border-[#2D3139] rounded-xl shadow-2xl overflow-hidden p-2.5 space-y-2 animate-in fade-in zoom-in-95 duration-100 min-w-[320px]">
+        <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-[#171A21] border border-[#2D3139] rounded-xl shadow-xl overflow-hidden p-2.5 space-y-2 min-w-[320px]">
           {/* Поле ручного клавиатурного ввода с фильтрацией на лету */}
           <div className="relative">
             <Search className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />

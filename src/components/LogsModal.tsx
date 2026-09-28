@@ -59,14 +59,15 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75`}>
       <div
         id="logs-modal-container"
-        className={`bg-white dark:bg-[#171A21] text-slate-900 dark:text-[#E0E0E0] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col transition-all duration-200 ${
+        className={`bg-white dark:bg-[#171A21] text-slate-900 dark:text-[#E0E0E0] shadow-xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[94vw] max-w-6xl max-h-[92vh] rounded-2xl'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок (двойной клик разворачивает окно) */}
         <div

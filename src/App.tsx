@@ -522,7 +522,7 @@ export default function App() {
       {/* Тост уведомлений */}
       {notification && (
         <div
-          className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-2.5 text-xs font-semibold animate-in slide-in-from-bottom-5 fade-in duration-200 ${
+          className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-2.5 text-xs font-semibold ${
             notification.type === 'error'
               ? 'bg-rose-950 text-rose-200 border-rose-900 shadow-rose-950/40'
               : notification.type === 'info'
@@ -643,7 +643,7 @@ export default function App() {
 
             {/* Информационная плашка активного фильтра связанных документов */}
             {activeRelatedFilterDocId !== null && (
-              <div className="bg-blue-950/40 border border-blue-500/30 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-blue-300 animate-in fade-in duration-150">
+              <div className="bg-blue-950/40 border border-blue-500/30 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-blue-300">
                 <div className="flex items-center gap-2 min-w-0">
                   <Link2 className="w-4 h-4 text-blue-400 shrink-0" />
                   <span className="truncate">

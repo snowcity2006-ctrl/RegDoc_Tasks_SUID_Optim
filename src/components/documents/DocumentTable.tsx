@@ -441,7 +441,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
     <>
       {isMaximized && (
         <div
-          className="fixed inset-0 z-45 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-45 bg-black/75"
           onClick={() => setIsMaximized(false)}
         />
       )}
@@ -459,7 +459,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         }
         className={`${
           isMaximized
-            ? 'fixed inset-2 sm:inset-4 z-50 rounded-2xl shadow-2xl border border-blue-500/50'
+            ? 'fixed inset-2 sm:inset-4 z-50 rounded-2xl shadow-xl border border-blue-500/50'
             : 'relative rounded-2xl shadow-xl border border-[#2D3139]'
         } bg-[#171A21] flex flex-col overflow-hidden text-[#E0E0E0] ${
           isResizingTable ? 'transition-none select-none' : 'transition-all'
@@ -604,9 +604,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
               >
                 <div
                   onClick={() => handleSort('docTypeName')}
-                  className="flex items-center justify-between cursor-pointer min-w-0 pr-1.5"
+                  className="flex items-center justify-between cursor-pointer min-w-0 pr-1.5 gap-1"
                 >
-                  <span className="truncate block" title="Тип документа">Тип</span>
+                  <span className="break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal leading-tight block min-w-0" title="Тип документа">Тип</span>
                   {renderSortIcon('docTypeName')}
                 </div>
                 <div
@@ -623,9 +623,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
               >
                 <div
                   onClick={() => handleSort('directionName')}
-                  className="flex items-center justify-between cursor-pointer min-w-0 pr-1.5"
+                  className="flex items-center justify-between cursor-pointer min-w-0 pr-1.5 gap-1"
                 >
-                  <span className="truncate block" title="Направление">Направление</span>
+                  <span className="break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal leading-tight block min-w-0" title="Направление">Направление</span>
                   {renderSortIcon('directionName')}
                 </div>
                 <div
@@ -872,10 +872,10 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 {/* Тип документа */}
                 <td
                   style={{ width: `${colWidths.docType}px`, minWidth: `${colWidths.docType}px`, maxWidth: `${colWidths.docType}px` }}
-                  className="py-2.5 px-3 overflow-hidden border-r border-[#2D3139]"
+                  className="py-2.5 px-3 overflow-hidden border-r border-[#2D3139] align-middle"
                   title={doc.docTypeName || '—'}
                 >
-                  <span className="truncate block leading-tight text-slate-800 dark:text-gray-300 font-medium">
+                  <span className="block break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal leading-snug text-slate-800 dark:text-gray-300 font-medium">
                     {doc.docTypeName || '—'}
                   </span>
                 </td>
@@ -883,11 +883,11 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 {/* Направление */}
                 <td
                   style={{ width: `${colWidths.direction}px`, minWidth: `${colWidths.direction}px`, maxWidth: `${colWidths.direction}px` }}
-                  className="py-2.5 px-3 overflow-hidden border-r border-[#2D3139]"
+                  className="py-2.5 px-3 overflow-hidden border-r border-[#2D3139] align-middle"
                   title={doc.directionName || '—'}
                 >
                   <span
-                    className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 truncate max-w-full inline-block align-middle"
+                    className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal leading-tight inline-block max-w-full text-center"
                   >
                     {doc.directionName || '—'}
                   </span>
@@ -1278,7 +1278,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
 
       {/* Всплывающий индикатор размеров во время масштабирования мышкой */}
       {isResizingTable && liveDimensions && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-40 bg-blue-600 text-white font-mono text-xs px-3.5 py-1.5 rounded-full shadow-2xl border border-blue-400 flex items-center gap-2 pointer-events-none animate-in fade-in zoom-in-95">
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-40 bg-blue-600 text-white font-mono text-xs px-3.5 py-1.5 rounded-full shadow-lg border border-blue-400 flex items-center gap-2 pointer-events-none">
           <span className="font-semibold">
             {liveDimensions.width} × {liveDimensions.height} px
           </span>
@@ -1292,8 +1292,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
 
       {/* Модалка подтверждения удаления документа */}
       {deleteDialog.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-[#171A21] rounded-2xl shadow-2xl border border-[#2D3139] w-full max-w-md overflow-hidden p-6 space-y-4 text-[#E0E0E0]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
+          <div className="bg-[#171A21] rounded-2xl shadow-xl border border-[#2D3139] w-full max-w-md overflow-hidden p-6 space-y-4 text-[#E0E0E0]" style={{ contain: 'content' }}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-950/80 text-rose-400 flex items-center justify-center border border-rose-900">
                 <AlertTriangle className="w-5 h-5" />

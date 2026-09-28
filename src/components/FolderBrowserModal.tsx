@@ -271,14 +271,15 @@ export const FolderBrowserModal: React.FC<FolderBrowserModalProps> = ({
   const subfolders = getSubfolders(currentPath);
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-200`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75`}>
       <div
         id="folder-browser-modal-container"
-        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
+        className={`bg-white dark:bg-[#171A21] shadow-xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[92vw] max-w-5xl max-h-[92vh] rounded-2xl'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок модального окна (двойной клик разворачивает окно) */}
         <div
@@ -511,7 +512,7 @@ export const FolderBrowserModal: React.FC<FolderBrowserModalProps> = ({
 
               {/* Форма создания новой папки */}
               {isCreatingFolder && (
-                <div className="p-3 bg-[#0F1115] border border-blue-500/40 rounded-xl flex items-center gap-2 animate-in fade-in duration-150">
+                <div className="p-3 bg-[#0F1115] border border-blue-500/40 rounded-xl flex items-center gap-2">
                   <FolderPlus className="w-4 h-4 text-blue-400 shrink-0" />
                   <input
                     type="text"

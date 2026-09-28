@@ -361,12 +361,13 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
       <div
         id="task-form-modal-container"
-        className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-2xl rounded-2xl flex flex-col transition-all duration-200 overflow-hidden ${
+        className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xl rounded-2xl flex flex-col overflow-hidden ${
           isMaximized ? 'w-full h-full max-w-none rounded-none' : 'w-full max-w-2xl max-h-[92vh]'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок формы с корпоративным синим стилем и высокой контрастностью */}
         <div
@@ -652,7 +653,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
               {/* Выпадающее окно со строкой поиска и списком исполнителей */}
               {isAssigneeDropdownOpen && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-2xl p-3 space-y-2.5 animate-in fade-in zoom-in-95 duration-100 min-w-[320px]">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-xl p-3 space-y-2.5 min-w-[320px]">
                   {/* Поле ручного набора символов с одновременной фильтрацией */}
                   <div className="relative">
                     <Search className="w-4 h-4 text-slate-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />

@@ -50,13 +50,15 @@ export const SuidDetailModal: React.FC<SuidDetailModalProps> = ({
   const isDelay = task.delayDays > 0;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs ${isMaximized ? 'p-0' : 'p-3 sm:p-4'} overflow-y-auto`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/75 ${isMaximized ? 'p-0' : 'p-3 sm:p-4'} overflow-y-auto`}>
       <div
-        className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-2xl overflow-hidden flex flex-col my-auto transition-all duration-150 w-full ${
+        id="suid-detail-modal-container"
+        className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xl overflow-hidden flex flex-col my-auto w-full ${
           isMaximized
             ? 'h-full max-w-none max-h-none rounded-none'
             : 'max-w-4xl xl:max-w-5xl 2xl:max-w-6xl rounded-2xl max-h-[92vh]'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Шапка */}
         <div

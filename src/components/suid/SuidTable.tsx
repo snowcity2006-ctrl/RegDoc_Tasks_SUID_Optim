@@ -424,7 +424,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
     <>
       {isMaximized && (
         <div
-          className="fixed inset-0 z-45 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-45 bg-black/75"
           onClick={() => setIsMaximized(false)}
         />
       )}
@@ -442,7 +442,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
         }
         className={`${
           isMaximized
-            ? 'fixed inset-2 sm:inset-4 z-50 rounded-2xl shadow-2xl border border-blue-500/50'
+            ? 'fixed inset-2 sm:inset-4 z-50 rounded-2xl shadow-xl border border-blue-500/50'
             : 'relative rounded-2xl shadow-xl border border-[#2D3139] w-full'
         } bg-[#171A21] flex flex-col overflow-hidden text-[#E0E0E0] ${
           isResizingTable ? 'transition-none select-none' : 'transition-all'
@@ -1172,7 +1172,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
 
         {/* Индикатор текущих размеров окна при масштабировании */}
         {isResizingTable && liveDimensions && (
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 bg-black/85 text-blue-300 border border-blue-500/40 px-3 py-1 rounded-full text-xs font-mono font-bold shadow-lg pointer-events-none backdrop-blur-xs animate-in fade-in duration-100">
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 bg-black/85 text-blue-300 border border-blue-500/40 px-3 py-1 rounded-full text-xs font-mono font-bold shadow-lg pointer-events-none">
             {liveDimensions.width} × {liveDimensions.height} px
           </div>
         )}
@@ -1230,8 +1230,8 @@ export const SuidTable: React.FC<SuidTableProps> = ({
 
       {/* Диалог подтверждения удаления */}
       {deleteDialog.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl max-w-md w-full p-5 shadow-2xl animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+          <div className="bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl max-w-md w-full p-5 shadow-xl" style={{ contain: 'content' }}>
             <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400 mb-3">
               <div className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20">
                 <Trash2 className="w-5 h-5" />

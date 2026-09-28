@@ -23,7 +23,7 @@ export const ZoomIndicatorHUD: React.FC<ZoomIndicatorHUDProps> = ({
   return (
     <div
       id="zoom-indicator-hud"
-      className="fixed bottom-14 right-6 z-60 bg-[#171A21]/95 text-[#E0E0E0] px-4 py-3 rounded-2xl border border-blue-500/60 shadow-2xl backdrop-blur-md flex items-center gap-3.5 select-none transition-all duration-200"
+      className="fixed bottom-14 right-6 z-60 bg-[#171A21] text-[#E0E0E0] px-4 py-3 rounded-2xl border border-blue-500/60 shadow-xl flex items-center gap-3.5 select-none"
       role="status"
       aria-live="polite"
     >

@@ -234,7 +234,7 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
                     onClick={() => setThemeMenuOpen(false)}
                   />
                   <div
-                    className="absolute right-0 mt-2 w-48 bg-[#171A21] rounded-xl shadow-2xl border border-[#2D3139] py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#E0E0E0]"
+                    className="absolute right-0 mt-2 w-48 bg-[#171A21] rounded-xl shadow-xl border border-[#2D3139] py-1.5 z-50 text-[#E0E0E0]"
                   >
                     <div className="px-3 py-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                       Оформление

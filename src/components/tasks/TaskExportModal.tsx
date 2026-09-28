@@ -170,11 +170,12 @@ export const TaskExportModal: React.FC<TaskExportModalProps> = ({
   return (
     <div
       id="task-export-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75"
     >
       <div
         id="task-export-modal-container"
-        className="bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-2xl w-full max-w-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh] text-slate-900 dark:text-[#E0E0E0]"
+        className="bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-2xl w-full max-w-xl shadow-xl flex flex-col overflow-hidden max-h-[90vh] text-slate-900 dark:text-[#E0E0E0]"
+        style={{ contain: 'content' }}
       >
         {/* Шапка модального окна */}
         <div

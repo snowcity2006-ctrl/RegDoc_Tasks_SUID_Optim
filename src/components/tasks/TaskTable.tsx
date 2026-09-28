@@ -876,14 +876,15 @@ export const TaskTable: React.FC<TaskTableProps> = ({
       {deleteDialog.isOpen && (
         <div
           id="task-delete-dialog-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75"
           onClick={() => {
             if (!deleting) setDeleteDialog({ isOpen: false, taskId: null, taskText: '' });
           }}
         >
           <div
             id="task-delete-dialog"
-            className="bg-[#171A21] rounded-2xl shadow-2xl border border-[#2D3139] w-full max-w-md overflow-hidden p-6 space-y-4 text-[#E0E0E0]"
+            className="bg-[#171A21] rounded-2xl shadow-xl border border-[#2D3139] w-full max-w-md overflow-hidden p-6 space-y-4 text-[#E0E0E0]"
+            style={{ contain: 'content' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3">

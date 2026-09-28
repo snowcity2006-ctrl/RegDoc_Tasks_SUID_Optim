@@ -1682,8 +1682,8 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
 
       {/* Диалог подтверждения удаления */}
       {deleteDialog.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-[#171A21] rounded-2xl shadow-2xl border border-[#2D3139] w-full max-w-md overflow-hidden p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
+          <div className="bg-[#171A21] rounded-2xl shadow-xl border border-[#2D3139] w-full max-w-md overflow-hidden p-6 space-y-4" style={{ contain: 'content' }}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-950/80 text-rose-400 flex items-center justify-center border border-rose-900">
                 <AlertTriangle className="w-5 h-5" />

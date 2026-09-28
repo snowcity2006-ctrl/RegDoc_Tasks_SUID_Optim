@@ -143,15 +143,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     <>
       <div
         id="project-modal-backdrop"
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75"
       >
         <div
           id="project-modal-dialog"
-          className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-2xl shadow-2xl flex flex-col transition-all duration-200 overflow-hidden ${
+          className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] rounded-2xl shadow-xl flex flex-col overflow-hidden ${
             isMaximized
               ? 'w-full h-full max-w-none max-h-none rounded-none'
               : 'w-full max-w-2xl max-h-[90vh]'
           }`}
+          style={{ contain: 'content' }}
         >
           {/* Шапка модального окна */}
           <div
@@ -200,7 +201,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
             <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
               {error && (
-                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3 text-rose-600 dark:text-rose-300 text-xs animate-in fade-in">
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3 text-rose-600 dark:text-rose-300 text-xs">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
                   <span>{error}</span>
                 </div>

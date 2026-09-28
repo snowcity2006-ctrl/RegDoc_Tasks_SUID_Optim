@@ -186,14 +186,15 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({
   );
 
   return (
-    <div className={`fixed inset-0 z-[60] flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75 backdrop-blur-xs animate-in fade-in duration-150`}>
+    <div className={`fixed inset-0 z-[60] flex items-center justify-center ${isMaximized ? 'p-1' : 'p-2 sm:p-4'} bg-black/75`}>
       <div
         id="employee-modal-dialog"
-        className={`bg-white dark:bg-[#171A21] shadow-2xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] transition-all duration-200 ${
+        className={`bg-white dark:bg-[#171A21] shadow-xl border border-slate-200 dark:border-[#2D3139] overflow-hidden flex flex-col text-slate-900 dark:text-[#E0E0E0] ${
           isMaximized
             ? 'w-[99vw] h-[98vh] rounded-xl'
             : 'w-[88vw] max-w-3xl max-h-[92vh] rounded-2xl'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Заголовок (двойной клик разворачивает окно) */}
         <div

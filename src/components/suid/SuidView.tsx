@@ -306,7 +306,7 @@ export const SuidView: React.FC<SuidViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full pb-8 animate-in fade-in duration-150">
+    <div className="flex flex-col gap-4 w-full pb-8">
       {/* Статистические карточки */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">

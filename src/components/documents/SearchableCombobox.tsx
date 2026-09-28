@@ -445,7 +445,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
       {isOpen && (
         <div
           ref={listRef}
-          className="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 max-h-60 overflow-y-auto"
+          className="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] rounded-xl shadow-xl overflow-hidden max-h-60 overflow-y-auto"
         >
           {hasUserTyped && query.trim() && (
             <div className="px-3 py-1.5 bg-slate-50 dark:bg-[#171A21] border-b border-slate-200 dark:border-[#2D3139] text-[11px] text-slate-500 dark:text-gray-400 flex items-center justify-between">

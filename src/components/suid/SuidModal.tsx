@@ -471,13 +471,15 @@ export const SuidModal: React.FC<SuidModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs ${isMaximized ? 'p-0' : 'p-3 sm:p-4'} overflow-y-auto`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/75 ${isMaximized ? 'p-0' : 'p-3 sm:p-4'} overflow-y-auto`}>
       <div
-        className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-2xl overflow-hidden flex flex-col my-auto transition-all duration-150 w-full ${
+        id="suid-modal-container"
+        className={`bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xl overflow-hidden flex flex-col my-auto w-full ${
           isMaximized
             ? 'h-full max-w-none max-h-none rounded-none'
             : 'max-w-5xl xl:max-w-6xl 2xl:max-w-7xl rounded-2xl max-h-[94vh]'
         }`}
+        style={{ contain: 'content' }}
       >
         {/* Шапка модального окна */}
         <div
