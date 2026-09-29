@@ -168,7 +168,26 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
         }
 
         // Инициализация сотрудников-получателей
-        setRecipientEmployeeIds(initialData.recipientEmployeeIds || []);
+        if (initialData.recipientEmployeeIds && initialData.recipientEmployeeIds.length > 0) {
+          setRecipientEmployeeIds(initialData.recipientEmployeeIds);
+        } else if (initialData.recipientEmployeeNames) {
+          const names = initialData.recipientEmployeeNames.split(',').map((s) => s.trim().toLowerCase());
+          const matchedIds = employees.filter((e) => names.includes(e.fullName.toLowerCase())).map((e) => e.id);
+          setRecipientEmployeeIds(matchedIds);
+        } else if (initialData.recipientDepartmentNames && (initialData.recipientIds?.length || initialData.recipientId)) {
+          const rIds = initialData.recipientIds && initialData.recipientIds.length > 0
+            ? initialData.recipientIds
+            : (initialData.recipientId ? [initialData.recipientId] : []);
+          const targetDepts = initialData.recipientDepartmentNames.split(',').map((s) => s.trim().toLowerCase());
+          const matched = employees.filter((e) => {
+            const matchesOrg = rIds.length === 0 || rIds.includes(e.organizationId);
+            const deptShort = (e.departmentShortName || '').toLowerCase();
+            return matchesOrg && targetDepts.some((d) => d === deptShort || deptShort.includes(d));
+          });
+          setRecipientEmployeeIds(matched.map((e) => e.id));
+        } else {
+          setRecipientEmployeeIds([]);
+        }
 
         setFilePath(initialData.filePath || '');
         setSedUrl(initialData.sedUrl || '');

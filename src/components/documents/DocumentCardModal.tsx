@@ -303,7 +303,7 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
                   </span>
                 </div>
               ) : null}
-              {doc.recipientDepartmentNames && !doc.recipientEmployeeNames && (
+              {doc.recipientDepartmentNames && (!doc.recipientEmployeesDetails || doc.recipientEmployeesDetails.length === 0) && (
                 <div className="mt-2 pt-2 border-t border-slate-200 dark:border-[#2D3139]/60">
                   <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">Структурные подразделения:</span>
                   <span className="text-indigo-600 dark:text-indigo-300 font-medium text-xs">

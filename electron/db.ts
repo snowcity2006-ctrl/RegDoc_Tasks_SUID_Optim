@@ -25,6 +25,7 @@ import {
   Direction,
   Project,
   DocumentRecord,
+  RecipientEmployeeDetail,
   TaskRecord,
   SuidTaskRecord,
 } from '../src/types';
@@ -770,14 +771,14 @@ class SQLiteDatabaseManager {
       const table = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='organizations'").get();
       if (!table) {
         this.populateFullSchemaAndDefaults(this.db);
-      } else {
-        await this.ensureColumnsExist();
       }
+      await this.ensureColumnsExist();
       this.syncAllRelatedRecords();
     } catch (e: any) {
       logger.log('warn', 'db', `Проверка схемы organizations: ${e.message}`);
       try {
         this.populateFullSchemaAndDefaults(this.db);
+        await this.ensureColumnsExist();
         this.syncAllRelatedRecords();
       } catch (schemaErr: any) {
         logger.log('error', 'db', `Ошибка создания схемы: ${schemaErr.message}`);
@@ -873,6 +874,83 @@ class SQLiteDatabaseManager {
         } catch {}
       }
 
+      // 5b. Документы: актуализируем recipient_emp_names для документов с recipient_emp_ids
+      const allEmps = this.db.prepare('SELECT id, full_name, organization_id, department_id FROM employees').all() as Array<{
+        id: number;
+        full_name: string;
+        organization_id: number;
+        department_id: number | null;
+      }>;
+      const allEmpMap = new Map(allEmps.map((e) => [e.id, e.full_name]));
+
+      const docsWithEmps = this.db.prepare(`
+        SELECT id, recipient_emp_ids, recipient_emp_names 
+        FROM documents 
+        WHERE recipient_emp_ids IS NOT NULL AND recipient_emp_ids != ''
+      `).all() as Array<{ id: number; recipient_emp_ids: string; recipient_emp_names: string | null }>;
+
+      const updateRecipientEmpNamesStmt = this.db.prepare(`
+        UPDATE documents 
+        SET recipient_emp_names = ?, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ?
+      `);
+
+      for (const d of docsWithEmps) {
+        try {
+          const ids = JSON.parse(d.recipient_emp_ids);
+          if (Array.isArray(ids) && ids.length > 0) {
+            const names = ids.map((id: number) => allEmpMap.get(id)).filter(Boolean);
+            const joined = names.join(', ');
+            if (joined && joined !== d.recipient_emp_names) {
+              updateRecipientEmpNamesStmt.run(joined, d.id);
+            }
+          }
+        } catch {}
+      }
+
+      // 5c. Автоматическое восстановление recipient_emp_ids и recipient_emp_names для существующих документов Astra Linux,
+      // где были заполнены recipient_dept_names (СП) и организация-получатель, но отсутствовали recipient_emp_ids
+      const docsMissingEmps = this.db.prepare(`
+        SELECT id, recipient_id, recipient_ids, recipient_dept_names
+        FROM documents
+        WHERE (recipient_emp_ids IS NULL OR recipient_emp_ids = '' OR recipient_emp_ids = '[]')
+          AND recipient_dept_names IS NOT NULL AND recipient_dept_names != ''
+      `).all() as Array<{ id: number; recipient_id: number | null; recipient_ids: string | null; recipient_dept_names: string }>;
+
+      if (docsMissingEmps.length > 0 && allEmps.length > 0) {
+        const updateEmpsRecoveryStmt = this.db.prepare(`
+          UPDATE documents
+          SET recipient_emp_ids = ?, recipient_emp_names = ?, updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `);
+
+        for (const doc of docsMissingEmps) {
+          let orgIds: number[] = [];
+          if (doc.recipient_ids) {
+            try {
+              const parsed = JSON.parse(doc.recipient_ids);
+              if (Array.isArray(parsed)) orgIds = parsed;
+            } catch {}
+          }
+          if (orgIds.length === 0 && doc.recipient_id) {
+            orgIds = [doc.recipient_id];
+          }
+
+          const targetDepts = doc.recipient_dept_names.split(',').map((s) => s.trim().toLowerCase());
+          const matched = allEmps.filter((e) => {
+            const matchesOrg = orgIds.length === 0 || orgIds.includes(e.organization_id);
+            const empDeptName = (deptMap.get(e.department_id || 0) || '').toLowerCase();
+            return matchesOrg && targetDepts.some((d) => d === empDeptName || empDeptName.includes(d));
+          });
+
+          if (matched.length > 0) {
+            const matchedIds = matched.map((e) => e.id);
+            const matchedNames = matched.map((e) => e.full_name).join(', ');
+            updateEmpsRecoveryStmt.run(JSON.stringify(matchedIds), matchedNames, doc.id);
+          }
+        }
+      }
+
       // 6. Проекты: актуализируем organization_names и gip_employee_names
       try {
         const hasProjectsTable = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").get();
@@ -930,6 +1008,8 @@ class SQLiteDatabaseManager {
         { name: 'recipient_ids', type: 'TEXT' },
         { name: 'recipient_dept_ids', type: 'TEXT' },
         { name: 'recipient_dept_names', type: 'TEXT' },
+        { name: 'recipient_emp_ids', type: 'TEXT' },
+        { name: 'recipient_emp_names', type: 'TEXT' },
         { name: 'sender_dept_id', type: 'INTEGER' },
         { name: 'sender_dept_name', type: 'TEXT' },
         { name: 'sender_emp_id', type: 'INTEGER' },
@@ -1101,6 +1181,8 @@ class SQLiteDatabaseManager {
         recipient_ids TEXT,
         recipient_dept_ids TEXT,
         recipient_dept_names TEXT,
+        recipient_emp_ids TEXT,
+        recipient_emp_names TEXT,
         file_path TEXT,
         sed_url TEXT,
         comments TEXT,
@@ -1467,7 +1549,7 @@ class SQLiteDatabaseManager {
       if (tasks && tasks.c > 0) {
         throw new Error('Нельзя удалить сотрудника, так как на него назначены задачи');
       }
-      const docs = this.db.prepare('SELECT count(*) as c FROM documents WHERE sender_emp_id = ? OR signatory_emp_id = ?').get(id, id) as { c: number };
+      const docs = this.db.prepare('SELECT count(*) as c FROM documents WHERE sender_emp_id = ? OR signatory_emp_id = ? OR recipient_emp_ids LIKE ?').get(id, id, `%"${id}"%`) as { c: number };
       if (docs && docs.c > 0) {
         throw new Error('Нельзя удалить сотрудника, так как он указан в зарегистрированных документах');
       }
@@ -1742,6 +1824,8 @@ class SQLiteDatabaseManager {
              d.recipient_ids as recipientIdsRaw,
              d.recipient_dept_ids as recipientDeptIdsRaw,
              d.recipient_dept_names as recipientDepartmentNames,
+             d.recipient_emp_ids as recipientEmpIdsRaw,
+             d.recipient_emp_names as recipientEmployeeNames,
              d.file_path as filePath, d.sed_url as sedUrl, d.comments,
              d.related_doc_ids as relatedDocIdsRaw,
              d.created_at as createdAt, d.updated_at as updatedAt
@@ -1803,6 +1887,38 @@ class SQLiteDatabaseManager {
       }
     }
 
+    let recipientEmployeeIds: number[] = [];
+    if (row.recipientEmpIdsRaw) {
+      try {
+        const parsed = JSON.parse(row.recipientEmpIdsRaw);
+        if (Array.isArray(parsed)) recipientEmployeeIds = parsed;
+      } catch {}
+    }
+
+    const emps = this.getEmployees();
+    let recipientEmployeeNames = row.recipientEmployeeNames || undefined;
+    const recipientEmployeesDetails: RecipientEmployeeDetail[] = [];
+    if (recipientEmployeeIds.length > 0) {
+      const eNames = recipientEmployeeIds.map((eid) => emps.find((e) => e.id === eid)?.fullName).filter(Boolean);
+      if (eNames.length > 0) {
+        recipientEmployeeNames = eNames.join(', ');
+      }
+      const orgs = this.getOrganizations();
+      recipientEmployeeIds.forEach((eid) => {
+        const emp = emps.find((e) => e.id === eid);
+        if (emp) {
+          const org = orgs.find((o) => o.id === emp.organizationId)?.name || emp.organizationName || '—';
+          recipientEmployeesDetails.push({
+            employeeId: emp.id,
+            employeeName: emp.fullName,
+            organizationId: emp.organizationId,
+            organizationName: org,
+            departmentName: emp.departmentShortName || undefined,
+          });
+        }
+      });
+    }
+
     return {
       ...row,
       senderDepartmentId: row.senderDepartmentId || undefined,
@@ -1815,6 +1931,9 @@ class SQLiteDatabaseManager {
       recipientIds,
       recipientDepartmentIds,
       recipientDepartmentNames,
+      recipientEmployeeIds,
+      recipientEmployeeNames,
+      recipientEmployeesDetails,
       relatedDocIds,
     };
   }
@@ -1838,6 +1957,8 @@ class SQLiteDatabaseManager {
              d.recipient_ids as recipientIdsRaw,
              d.recipient_dept_ids as recipientDeptIdsRaw,
              d.recipient_dept_names as recipientDepartmentNames,
+             d.recipient_emp_ids as recipientEmpIdsRaw,
+             d.recipient_emp_names as recipientEmployeeNames,
              d.file_path as filePath, d.sed_url as sedUrl, d.comments,
              d.related_doc_ids as relatedDocIdsRaw,
              d.created_at as createdAt, d.updated_at as updatedAt
@@ -1854,6 +1975,10 @@ class SQLiteDatabaseManager {
 
     const orgs = this.getOrganizations();
     const depts = this.getDepartments();
+    const emps = this.getEmployees();
+    const orgMap = new Map(orgs.map((o) => [o.id, o.name]));
+    const deptMap = new Map(depts.map((d) => [d.id, d.shortName || d.name]));
+    const empMap = new Map(emps.map((e) => [e.id, e.fullName]));
 
     return rows.map((row: any) => {
       let recipientIds: number[] = [];
@@ -1899,6 +2024,36 @@ class SQLiteDatabaseManager {
         }
       }
 
+      let recipientEmployeeIds: number[] = [];
+      if (row.recipientEmpIdsRaw) {
+        try {
+          const parsed = JSON.parse(row.recipientEmpIdsRaw);
+          if (Array.isArray(parsed)) recipientEmployeeIds = parsed;
+        } catch {}
+      }
+
+      let recipientEmployeeNames = row.recipientEmployeeNames || undefined;
+      const recipientEmployeesDetails: RecipientEmployeeDetail[] = [];
+      if (recipientEmployeeIds.length > 0) {
+        const eNames = recipientEmployeeIds.map((eid) => empMap.get(eid)).filter(Boolean);
+        if (eNames.length > 0) {
+          recipientEmployeeNames = eNames.join(', ');
+        }
+        recipientEmployeeIds.forEach((eid) => {
+          const emp = emps.find((e) => e.id === eid);
+          if (emp) {
+            const org = orgMap.get(emp.organizationId) || emp.organizationName || '—';
+            recipientEmployeesDetails.push({
+              employeeId: emp.id,
+              employeeName: emp.fullName,
+              organizationId: emp.organizationId,
+              organizationName: org,
+              departmentName: emp.departmentShortName || undefined,
+            });
+          }
+        });
+      }
+
       return {
         ...row,
         senderDepartmentId: row.senderDepartmentId || undefined,
@@ -1911,6 +2066,9 @@ class SQLiteDatabaseManager {
         recipientIds,
         recipientDepartmentIds,
         recipientDepartmentNames,
+        recipientEmployeeIds,
+        recipientEmployeeNames,
+        recipientEmployeesDetails,
         relatedDocIds,
       };
     });
@@ -1924,6 +2082,10 @@ class SQLiteDatabaseManager {
       ? JSON.stringify(doc.recipientDepartmentIds)
       : null;
     const recipientDeptNames = doc.recipientDepartmentNames || null;
+    const recipientEmpIdsJson = doc.recipientEmployeeIds && doc.recipientEmployeeIds.length > 0
+      ? JSON.stringify(doc.recipientEmployeeIds)
+      : null;
+    const recipientEmpNames = doc.recipientEmployeeNames || null;
     const relatedDocIdsJson = doc.relatedDocIds && doc.relatedDocIds.length > 0
       ? JSON.stringify(doc.relatedDocIds)
       : null;
@@ -1939,6 +2101,7 @@ class SQLiteDatabaseManager {
             sender_dept_id = ?, sender_dept_name = ?, sender_emp_id = ?, sender_emp_name = ?,
             signatory_emp_id = ?, signatory_emp_name = ?,
             recipient_id = ?, recipient_ids = ?, recipient_dept_ids = ?, recipient_dept_names = ?,
+            recipient_emp_ids = ?, recipient_emp_names = ?,
             file_path = ?, sed_url = ?, comments = ?, related_doc_ids = ?, updated_at = CURRENT_TIMESTAMP
           WHERE id = ?
         `).run(
@@ -1948,6 +2111,7 @@ class SQLiteDatabaseManager {
           doc.senderEmployeeId || null, doc.senderEmployeeName || null,
           doc.signatoryEmployeeId || null, doc.signatoryEmployeeName || null,
           primaryRecipientId, recipientIdsJson, recipientDeptIdsJson, recipientDeptNames,
+          recipientEmpIdsJson, recipientEmpNames,
           doc.filePath || null, doc.sedUrl || null, doc.comments || null, relatedDocIdsJson,
           doc.id
         );
@@ -1960,8 +2124,9 @@ class SQLiteDatabaseManager {
             sender_dept_id, sender_dept_name, sender_emp_id, sender_emp_name,
             signatory_emp_id, signatory_emp_name,
             recipient_id, recipient_ids, recipient_dept_ids, recipient_dept_names,
+            recipient_emp_ids, recipient_emp_names,
             file_path, sed_url, comments, related_doc_ids
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           doc.docTypeId, doc.directionId, doc.outgoingNumber || null, doc.outgoingDate || null,
           doc.incomingNumber || null, doc.incomingDate || null, doc.subject, doc.senderId || null,
@@ -1969,6 +2134,7 @@ class SQLiteDatabaseManager {
           doc.senderEmployeeId || null, doc.senderEmployeeName || null,
           doc.signatoryEmployeeId || null, doc.signatoryEmployeeName || null,
           primaryRecipientId, recipientIdsJson, recipientDeptIdsJson, recipientDeptNames,
+          recipientEmpIdsJson, recipientEmpNames,
           doc.filePath || null, doc.sedUrl || null, doc.comments || null, relatedDocIdsJson
         );
         targetId = Number(info.lastInsertRowid);

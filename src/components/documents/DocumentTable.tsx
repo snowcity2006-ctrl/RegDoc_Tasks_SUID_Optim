@@ -447,8 +447,10 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   // Отображение получателя с детальной привязкой сотрудников к организациям
   const renderRecipientCell = (doc: DocumentRecord) => {
     // 1. Получаем детальную информацию по сотрудникам и их организациям
-    let empDetails = doc.recipientEmployeesDetails;
-    if ((!empDetails || empDetails.length === 0) && doc.recipientEmployeeIds && doc.recipientEmployeeIds.length > 0) {
+    let empDetails = doc.recipientEmployeesDetails ? [...doc.recipientEmployeesDetails] : [];
+
+    // Если нет empDetails, но есть recipientEmployeeIds — формируем из списка сотрудников
+    if (empDetails.length === 0 && doc.recipientEmployeeIds && doc.recipientEmployeeIds.length > 0) {
       empDetails = doc.recipientEmployeeIds.map((empId) => {
         const emp = employees?.find((e) => e.id === empId);
         const orgName = emp
@@ -464,6 +466,51 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
       });
     }
 
+    // Если empDetails все еще нет, но есть recipientEmployeeNames (строка с ФИО через запятую)
+    if (empDetails.length === 0 && doc.recipientEmployeeNames && doc.recipientEmployeeNames.trim()) {
+      const rawNames = doc.recipientEmployeeNames.split(',').map((s) => s.trim()).filter(Boolean);
+      if (rawNames.length > 0) {
+        empDetails = rawNames.map((name) => {
+          const emp = employees?.find((e) => e.fullName.toLowerCase() === name.toLowerCase());
+          const orgName = emp
+            ? (organizations?.find((o) => o.id === emp.organizationId)?.name || emp.organizationName || '—')
+            : '—';
+          return {
+            employeeId: emp ? emp.id : 0,
+            employeeName: name,
+            organizationId: emp ? emp.organizationId : 0,
+            organizationName: orgName,
+            departmentName: emp?.departmentShortName,
+          };
+        });
+      }
+    }
+
+    // Если empDetails все еще нет, но есть СП получателя и организация (для старых записей в Astra Linux)
+    if (empDetails.length === 0 && doc.recipientDepartmentNames && employees && employees.length > 0) {
+      const orgIds = doc.recipientIds && doc.recipientIds.length > 0
+        ? doc.recipientIds
+        : (doc.recipientId ? [doc.recipientId] : []);
+      const targetDepts = doc.recipientDepartmentNames.split(',').map((s) => s.trim().toLowerCase());
+      const matchedEmps = employees.filter((e) => {
+        const matchesOrg = orgIds.length === 0 || orgIds.includes(e.organizationId);
+        const deptShort = (e.departmentShortName || '').toLowerCase();
+        return matchesOrg && targetDepts.some((d) => d === deptShort || deptShort.includes(d));
+      });
+      if (matchedEmps.length > 0) {
+        empDetails = matchedEmps.map((emp) => {
+          const orgName = organizations?.find((o) => o.id === emp.organizationId)?.name || emp.organizationName || '—';
+          return {
+            employeeId: emp.id,
+            employeeName: emp.fullName,
+            organizationId: emp.organizationId,
+            organizationName: orgName,
+            departmentName: emp.departmentShortName,
+          };
+        });
+      }
+    }
+
     const hasEmployees = Boolean(empDetails && empDetails.length > 0);
     const hasOrgName = Boolean(doc.recipientName && doc.recipientName !== '—');
 
@@ -471,7 +518,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
       return <span className="text-slate-400 dark:text-gray-500">—</span>;
     }
 
-    // Если нет выбранных сотрудников, выводим стандартно организацию и СП
+    // Если нет выбранных сотрудников, выводим стандартно организацию, ФИО (если есть) и СП
     if (!hasEmployees) {
       return (
         <div className="leading-snug">
@@ -481,6 +528,14 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
               {doc.recipientName || '—'}
             </span>
           </div>
+          {doc.recipientEmployeeNames && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/40 break-words" title="ФИО Получателя">
+                <User className="w-2.5 h-2.5 shrink-0" />
+                <span>Получатель: {doc.recipientEmployeeNames}</span>
+              </span>
+            </div>
+          )}
           {doc.recipientDepartmentNames && (
             <div className="mt-1 flex flex-wrap gap-1">
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40 break-words">
@@ -537,6 +592,10 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
 
       if (targetGroup) {
         targetGroup.employees.push(emp);
+      } else if (groupsMap.size === 1) {
+        // Если в документе только одна организация получателя, относим сотрудника к ней
+        const onlyGroup = Array.from(groupsMap.values())[0];
+        onlyGroup.employees.push(emp);
       } else {
         const newOrgName =
           emp.organizationName && emp.organizationName !== '—' ? emp.organizationName : 'Организация не указана';
