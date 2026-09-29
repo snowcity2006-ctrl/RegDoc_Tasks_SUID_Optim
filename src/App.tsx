@@ -256,6 +256,7 @@ export default function App() {
           (doc.signatoryEmployeeName && doc.signatoryEmployeeName.toLowerCase().includes(rawQuery)) ||
           (doc.recipientName && doc.recipientName.toLowerCase().includes(rawQuery)) ||
           (doc.recipientDepartmentNames && doc.recipientDepartmentNames.toLowerCase().includes(rawQuery)) ||
+          (doc.recipientEmployeeNames && doc.recipientEmployeeNames.toLowerCase().includes(rawQuery)) ||
           (doc.filePath && doc.filePath.toLowerCase().includes(rawQuery)) ||
           (doc.sedUrl && doc.sedUrl.toLowerCase().includes(rawQuery)) ||
           String(doc.id).includes(rawQuery)
@@ -278,6 +279,7 @@ export default function App() {
           (doc.signatoryEmployeeName && doc.signatoryEmployeeName.toLowerCase().includes(rawQuery)) ||
           (doc.recipientName && doc.recipientName.toLowerCase().includes(rawQuery)) ||
           (doc.recipientDepartmentNames && doc.recipientDepartmentNames.toLowerCase().includes(rawQuery)) ||
+          (doc.recipientEmployeeNames && doc.recipientEmployeeNames.toLowerCase().includes(rawQuery)) ||
           (doc.filePath && doc.filePath.toLowerCase().includes(rawQuery)) ||
           (doc.sedUrl && doc.sedUrl.toLowerCase().includes(rawQuery)) ||
           String(doc.id).includes(rawQuery);
@@ -665,6 +667,8 @@ export default function App() {
             <DocumentTable
               documents={filteredDocuments}
               allDocuments={documents}
+              employees={employees}
+              organizations={organizations}
               activeRelatedFilterDocId={activeRelatedFilterDocId}
               onToggleRelatedFilter={handleToggleRelatedFilter}
               onView={(doc) => setViewingDoc(doc)}

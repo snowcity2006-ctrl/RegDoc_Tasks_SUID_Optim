@@ -15,6 +15,7 @@ import {
   ClipboardPaste,
   Layers,
   User,
+  Users,
   UserCheck,
   Maximize2,
   Minimize2,
@@ -86,8 +87,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
   const [senderEmployeeId, setSenderEmployeeId] = useState<number | ''>('');
   const [signatoryEmployeeId, setSignatoryEmployeeId] = useState<number | ''>('');
 
-  // Отслеживание добавления сотрудника для авто-выбора (Подписал / Исполнитель)
-  const [pendingEmployeeTarget, setPendingEmployeeTarget] = useState<'signatory' | 'executor' | null>(null);
+  // Отслеживание добавления сотрудника для авто-выбора (Подписал / Исполнитель / Получатель)
+  const [pendingEmployeeTarget, setPendingEmployeeTarget] = useState<'signatory' | 'executor' | 'recipient' | null>(null);
   const prevEmployeesCountRef = useRef(employees.length);
 
   // Отслеживание открытия модалки и предыдущих списков справочников, чтобы не сбрасывать форму при добавлении записей через плюсики
@@ -104,8 +105,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
   // Состояние разворачивания окна на весь экран
   const [isMaximized, setIsMaximized] = useState(false);
 
-  // Множественный выбор структурных подразделений для Получателя
-  const [recipientDepartmentIds, setRecipientDepartmentIds] = useState<number[]>([]);
+  // Множественный выбор сотрудников для Получателя (ФИО Получателя)
+  const [recipientEmployeeIds, setRecipientEmployeeIds] = useState<number[]>([]);
 
   const [filePath, setFilePath] = useState('');
   const [sedUrl, setSedUrl] = useState('');
@@ -166,8 +167,8 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
           setRecipientIds([]);
         }
 
-        // Инициализация структурных подразделений получателя
-        setRecipientDepartmentIds(initialData.recipientDepartmentIds || []);
+        // Инициализация сотрудников-получателей
+        setRecipientEmployeeIds(initialData.recipientEmployeeIds || []);
 
         setFilePath(initialData.filePath || '');
         setSedUrl(initialData.sedUrl || '');
@@ -186,7 +187,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
         setSenderEmployeeId('');
         setSignatoryEmployeeId('');
         setRecipientIds([]);
-        setRecipientDepartmentIds([]);
+        setRecipientEmployeeIds([]);
         setFilePath('');
         setSedUrl('');
         setComments('');
@@ -252,6 +253,11 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
         }
       } else if (newestEmp && pendingEmployeeTarget === 'executor') {
         handleSenderEmployeeChange(newestEmp.id);
+      } else if (newestEmp && pendingEmployeeTarget === 'recipient') {
+        setRecipientEmployeeIds((prev) => (prev.includes(newestEmp.id) ? prev : [...prev, newestEmp.id]));
+        if (newestEmp.organizationId && !recipientIds.includes(newestEmp.organizationId)) {
+          setRecipientIds((prev) => [...prev, newestEmp.organizationId]);
+        }
       }
       setPendingEmployeeTarget(null);
     }
@@ -327,18 +333,25 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
     setRecipientIds([]);
   }, []);
 
-  // Обработка переключения структурных подразделений получателя
-  const toggleDepartment = useCallback((deptId: number) => {
-    setRecipientDepartmentIds((prev) =>
-      prev.includes(deptId) ? prev.filter((id) => id !== deptId) : [...prev, deptId]
-    );
-  }, []);
+  // Обработка выбора сотрудников-получателей: при выборе сотрудника организация, к которой он принадлежит,
+  // автоматически добавляется в поле «Получатель (множественный выбор)», если она еще не была выбрана
+  const handleRecipientEmployeesChange = useCallback((newEmpIds: number[]) => {
+    setRecipientEmployeeIds(newEmpIds);
 
-  // Доступные подразделения для получателя: при выборе получателей фильтруются по ним, иначе доступны все
-  const availableDepartments = useMemo(() => {
-    if (recipientIds.length === 0) return departments;
-    return departments.filter((d) => recipientIds.includes(d.organizationId));
-  }, [departments, recipientIds]);
+    // Определяем организации выбранных сотрудников
+    const selectedEmps = employees.filter((e) => newEmpIds.includes(e.id));
+    const empOrgIds = selectedEmps
+      .map((e) => e.organizationId)
+      .filter((orgId): orgId is number => typeof orgId === 'number' && orgId > 0);
+
+    if (empOrgIds.length > 0) {
+      setRecipientIds((prevOrgs) => {
+        const toAdd = empOrgIds.filter((id) => !prevOrgs.includes(id));
+        if (toAdd.length === 0) return prevOrgs;
+        return [...prevOrgs, ...Array.from(new Set(toAdd))];
+      });
+    }
+  }, [employees]);
 
   // Обработка выбора для Отправителя: Организация, СП, Исполнитель (Сотрудник), Подписал
   const handleSenderOrgChange = useCallback((newOrgId: number | '') => {
@@ -513,15 +526,33 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
     }));
   }, [organizations]);
 
-  const recipientDeptOptions: MultiSelectOption[] = useMemo(() => {
-    return availableDepartments.map((dept) => ({
-      id: dept.id,
-      label: dept.shortName || dept.name,
-      subLabel: dept.shortName ? dept.name : undefined,
-      badge: dept.organizationName,
-      searchStr: `${dept.name} ${dept.shortName || ''} ${dept.organizationName || ''}`,
-    }));
-  }, [availableDepartments]);
+  // Опции для выпадающего списка ФИО Получателя (множественный выбор) из справочника «Сотрудники».
+  // Дополнительно к ФИО выводится информация с названием организации и структурного подразделения сотрудника
+  const recipientEmployeeOptions: MultiSelectOption[] = useMemo(() => {
+    // Сортировка: сотрудники выбранных организаций-получателей идут первыми, остальные по алфавиту
+    const sortedEmployees = [...employees].sort((a, b) => {
+      if (recipientIds.length > 0) {
+        const aMatch = recipientIds.includes(a.organizationId) ? 0 : 1;
+        const bMatch = recipientIds.includes(b.organizationId) ? 0 : 1;
+        if (aMatch !== bMatch) return aMatch - bMatch;
+      }
+      return a.fullName.localeCompare(b.fullName, 'ru');
+    });
+
+    return sortedEmployees.map((emp) => {
+      const orgName = emp.organizationName || organizations.find((o) => o.id === emp.organizationId)?.name || '—';
+      const deptName = emp.departmentShortName || '—';
+      const pos = emp.position ? ` (${emp.position})` : '';
+
+      return {
+        id: emp.id,
+        label: emp.fullName,
+        subLabel: `Организация: ${orgName} • СП: ${deptName}${pos}`,
+        badge: deptName !== '—' ? deptName : undefined,
+        searchStr: `${emp.fullName} ${orgName} ${deptName} ${emp.position || ''}`,
+      };
+    });
+  }, [employees, organizations, recipientIds]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -556,13 +587,18 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
     const signatoryEmp = employees.find((e) => e.id === signatoryEmployeeId);
     const signatoryEmpName = signatoryEmp ? signatoryEmp.fullName : undefined;
 
-    // Составляем строку названий структурных подразделений
-    const selectedDepts = departments.filter((d) => recipientDepartmentIds.includes(d.id));
-    const recipientDeptNames = selectedDepts.map((d) => d.shortName || d.name).join(', ');
+    // Составляем строку ФИО сотрудников-получателей
+    const selectedRecipientEmps = employees.filter((e) => recipientEmployeeIds.includes(e.id));
+    const recipientEmpNames = selectedRecipientEmps.map((e) => e.fullName).join(', ');
 
     // Названия выбранных организаций-получателей
     const selectedOrgs = organizations.filter((o) => recipientIds.includes(o.id));
     const recipientNames = selectedOrgs.map((o) => o.name).join(', ');
+
+    // Структурные подразделения сотрудников-получателей для отображения
+    const derivedDeptNames = Array.from(
+      new Set(selectedRecipientEmps.map((e) => e.departmentShortName).filter(Boolean))
+    ).join(', ');
 
     setSaving(true);
     setError(null);
@@ -587,8 +623,10 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
         recipientId: recipientIds.length > 0 ? recipientIds[0] : undefined,
         recipientName: recipientNames || undefined,
         recipientIds: recipientIds.length > 0 ? recipientIds : undefined,
-        recipientDepartmentIds: recipientDepartmentIds.length > 0 ? recipientDepartmentIds : undefined,
-        recipientDepartmentNames: recipientDeptNames || undefined,
+        recipientDepartmentIds: initialData?.recipientDepartmentIds || undefined,
+        recipientDepartmentNames: derivedDeptNames || initialData?.recipientDepartmentNames || undefined,
+        recipientEmployeeIds: recipientEmployeeIds.length > 0 ? recipientEmployeeIds : undefined,
+        recipientEmployeeNames: recipientEmpNames || undefined,
         filePath: filePath.trim() ? normalizeAstraPathForStorage(filePath.trim()).normalizedPath : undefined,
         sedUrl: formattedSedUrl || undefined,
         comments: comments.trim() || undefined,
@@ -840,50 +878,56 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
               )}
             </div>
 
-            {/* Организация */}
-            <div className="min-w-0 w-full">
-              <label className="block text-[11px] font-medium text-slate-600 dark:text-gray-400 mb-1 truncate">
-                Организация
-              </label>
-              <SearchableCombobox
-                id="sender-org-combobox"
-                options={senderOrgOptions}
-                value={senderId}
-                onChange={handleSenderOrgChange}
-                placeholder="-- Введите название или выберите организацию --"
-                emptyMessage="Организации не найдены"
-                onAddNew={onOpenNewOrgModal}
-                addNewTitle="Добавить новую организацию в справочник"
-              />
-            </div>
-
-            {/* Структурное подразделение */}
-            <div className="min-w-0 w-full">
-              <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
-                <label className="text-[11px] font-medium text-slate-600 dark:text-gray-400 flex items-center gap-1 min-w-0 truncate">
-                  <Layers className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
-                  <span className="truncate">Структурное подразделение</span>
-                </label>
-                {senderDepartmentId && (
-                  <button
-                    type="button"
-                    onClick={() => setSenderDepartmentId('')}
-                    className="text-[10px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors shrink-0"
-                  >
-                    Сбросить
-                  </button>
-                )}
+            {/* Организация и Структурное подразделение в одну линию */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 min-w-0 w-full">
+              {/* Организация */}
+              <div className="min-w-0 w-full">
+                <div className="flex items-center justify-between gap-2 mb-1 min-w-0 h-4">
+                  <label className="text-[11px] font-medium text-slate-600 dark:text-gray-400 flex items-center gap-1 min-w-0 truncate">
+                    <Building2 className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
+                    <span className="truncate">Организация</span>
+                  </label>
+                </div>
+                <SearchableCombobox
+                  id="sender-org-combobox"
+                  options={senderOrgOptions}
+                  value={senderId}
+                  onChange={handleSenderOrgChange}
+                  placeholder="-- Введите название или выберите организацию --"
+                  emptyMessage="Организации не найдены"
+                  onAddNew={onOpenNewOrgModal}
+                  addNewTitle="Добавить новую организацию в справочник"
+                />
               </div>
-              <SearchableCombobox
-                id="sender-dept-combobox"
-                options={senderDeptOptions}
-                value={senderDepartmentId}
-                onChange={handleSenderDeptChange}
-                placeholder="-- Введите название СП или выберите --"
-                emptyMessage="Подразделения не найдены"
-                onAddNew={onOpenNewDepartmentModal}
-                addNewTitle="Добавить структурное подразделение в справочник"
-              />
+
+              {/* Структурное подразделение */}
+              <div className="min-w-0 w-full">
+                <div className="flex items-center justify-between gap-2 mb-1 min-w-0 h-4">
+                  <label className="text-[11px] font-medium text-slate-600 dark:text-gray-400 flex items-center gap-1 min-w-0 truncate">
+                    <Layers className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
+                    <span className="truncate">Структурное подразделение</span>
+                  </label>
+                  {senderDepartmentId && (
+                    <button
+                      type="button"
+                      onClick={() => setSenderDepartmentId('')}
+                      className="text-[10px] text-slate-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors shrink-0"
+                    >
+                      Сбросить
+                    </button>
+                  )}
+                </div>
+                <SearchableCombobox
+                  id="sender-dept-combobox"
+                  options={senderDeptOptions}
+                  value={senderDepartmentId}
+                  onChange={handleSenderDeptChange}
+                  placeholder="-- Введите название СП или выберите --"
+                  emptyMessage="Подразделения не найдены"
+                  onAddNew={onOpenNewDepartmentModal}
+                  addNewTitle="Добавить структурное подразделение в справочник"
+                />
+              </div>
             </div>
 
             {/* Выбор Подписал и Исполнитель: адаптивная сетка с min-w-0, поиском с клавиатуры и возможностью выбора одного человека */}
@@ -990,7 +1034,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
             </div>
           </div>
 
-          {/* 5. ПОЛУЧАТЕЛЬ (Множественный выбор организаций) и СТРУКТУРНЫЕ ПОДРАЗДЕЛЕНИЯ ПОЛУЧАТЕЛЯ */}
+          {/* 5. ПОЛУЧАТЕЛЬ (Множественный выбор организаций) и ФИО ПОЛУЧАТЕЛЯ (Сотрудники) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 min-w-0 w-full">
             {/* 5.1 Множественный выбор: Получатель (Организации) с прямым поиском с клавиатуры */}
             <SearchableMultiSelect
@@ -1007,23 +1051,36 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
               chipColor="blue"
             />
 
-            {/* 5.2 Множественный выбор: Структурные подразделения для Получателя с прямым поиском с клавиатуры */}
+            {/* 5.2 Множественный выбор: ФИО Получателя из справочника «Сотрудники» */}
             <SearchableMultiSelect
-              id="recipient-depts-multiselect"
-              label="СП для «Получателя» (множественный выбор)"
-              icon={<Layers className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />}
-              options={recipientDeptOptions}
-              selectedIds={recipientDepartmentIds}
-              onChange={setRecipientDepartmentIds}
-              placeholder="-- Введите название или аббревиатуру СП --"
-              emptyMessage={
-                availableDepartments.length === 0
-                  ? 'Для выбранных получателей нет СП в справочнике'
-                  : 'Подразделения не найдены'
-              }
-              onAddNew={onOpenNewDepartmentModal}
-              addNewTitle="Добавить структурное подразделение в справочник"
-              chipColor="indigo"
+              id="recipient-employees-multiselect"
+              label="ФИО Получателя (множественный выбор)"
+              icon={<Users className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />}
+              options={recipientEmployeeOptions}
+              selectedIds={recipientEmployeeIds}
+              onChange={handleRecipientEmployeesChange}
+              placeholder="-- Введите ФИО, организацию или СП получателя --"
+              emptyMessage="Сотрудники не найдены"
+              onAddNew={() => {
+                setPendingEmployeeTarget('recipient');
+                onOpenNewEmployeeModal();
+              }}
+              addNewTitle="Добавить сотрудника в справочник"
+              chipColor="blue"
+              renderChipExtra={(opt) => {
+                const emp = employees.find((e) => e.id === opt.id);
+                if (!emp) return null;
+                const deptName = emp.departmentShortName || '';
+                const orgName = emp.organizationName || organizations.find((o) => o.id === emp.organizationId)?.name || '';
+                return (
+                  <span
+                    className="text-[10px] opacity-80 truncate max-w-[140px] font-normal"
+                    title={`Организация: ${orgName}\nСП: ${deptName}`}
+                  >
+                    ({deptName || orgName})
+                  </span>
+                );
+              }}
             />
           </div>
 
@@ -1248,6 +1305,7 @@ export const DocumentFormModal: React.FC<DocumentFormModalProps> = ({
           documentTypes={documentTypes}
           directions={directions}
           organizations={organizations}
+          employees={employees}
         />
       )}
     </div>

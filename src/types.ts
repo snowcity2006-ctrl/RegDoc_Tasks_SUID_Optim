@@ -159,6 +159,14 @@ export interface SuidFilterState {
   dateTo?: string; // Диапазон дат "по"
 }
 
+export interface RecipientEmployeeDetail {
+  employeeId: number;
+  employeeName: string;
+  organizationId: number;
+  organizationName: string;
+  departmentName?: string;
+}
+
 export interface DocumentRecord {
   id: number;
   docTypeId: number; // Тип документа (обязательно *)
@@ -183,6 +191,9 @@ export interface DocumentRecord {
   recipientIds?: number[]; // Множественный выбор получателей (Организаций)
   recipientDepartmentIds?: number[]; // Множественный выбор структурных подразделений получателя
   recipientDepartmentNames?: string; // Названия структурных подразделений получателя
+  recipientEmployeeIds?: number[]; // Множественный выбор сотрудников-получателей (ФИО Получателя)
+  recipientEmployeeNames?: string; // ФИО сотрудников-получателей
+  recipientEmployeesDetails?: RecipientEmployeeDetail[]; // Детальная привязка сотрудников к организациям
   filePath?: string; // Путь к документу (гиперссылка на папку или файл)
   sedUrl?: string; // Путь к документу в СЭД (гиперссылка в формате интернет браузера)
   comments?: string;

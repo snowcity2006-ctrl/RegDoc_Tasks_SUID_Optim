@@ -13,6 +13,7 @@ import {
   DocumentType,
   Direction,
   Organization,
+  Employee,
   DocumentFilterState,
 } from '../../types';
 import { DocumentFilters } from './DocumentFilters';
@@ -28,6 +29,7 @@ interface RelatedDocumentsModalProps {
   documentTypes: DocumentType[];
   directions: Direction[];
   organizations: Organization[];
+  employees?: Employee[];
 }
 
 export const RelatedDocumentsModal: React.FC<RelatedDocumentsModalProps> = ({
@@ -40,6 +42,7 @@ export const RelatedDocumentsModal: React.FC<RelatedDocumentsModalProps> = ({
   documentTypes,
   directions,
   organizations,
+  employees,
 }) => {
   const [selectedDocIds, setSelectedDocIds] = useState<number[]>([]);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -82,6 +85,7 @@ export const RelatedDocumentsModal: React.FC<RelatedDocumentsModalProps> = ({
           (doc.signatoryEmployeeName && doc.signatoryEmployeeName.toLowerCase().includes(rawQuery)) ||
           (doc.recipientName && doc.recipientName.toLowerCase().includes(rawQuery)) ||
           (doc.recipientDepartmentNames && doc.recipientDepartmentNames.toLowerCase().includes(rawQuery)) ||
+          (doc.recipientEmployeeNames && doc.recipientEmployeeNames.toLowerCase().includes(rawQuery)) ||
           (doc.filePath && doc.filePath.toLowerCase().includes(rawQuery)) ||
           (doc.sedUrl && doc.sedUrl.toLowerCase().includes(rawQuery)) ||
           String(doc.id).includes(rawQuery);
@@ -265,6 +269,8 @@ export const RelatedDocumentsModal: React.FC<RelatedDocumentsModalProps> = ({
             <DocumentTable
               documents={filteredDocuments}
               allDocuments={documents}
+              employees={employees}
+              organizations={organizations}
               isRelatedSelectionMode={true}
               selectedDocIds={selectedDocIds}
               onToggleDocSelect={handleToggleDocSelect}

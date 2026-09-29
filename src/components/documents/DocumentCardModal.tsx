@@ -18,6 +18,7 @@ import {
   Laptop,
   Link2,
   Eye,
+  User,
 } from 'lucide-react';
 import { DocumentRecord } from '../../types';
 import { formatDateRussian, formatDateTimeRussian } from '../../utils/date';
@@ -269,7 +270,40 @@ export const DocumentCardModal: React.FC<DocumentCardModalProps> = ({
               <p className="font-semibold text-slate-900 dark:text-[#E0E0E0]">
                 {doc.recipientName || '—'}
               </p>
-              {doc.recipientDepartmentNames && (
+              {doc.recipientEmployeesDetails && doc.recipientEmployeesDetails.length > 0 ? (
+                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-[#2D3139]/60 flex flex-col gap-1.5">
+                  <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">ФИО Получателя:</span>
+                  <div className="flex flex-col gap-1">
+                    {doc.recipientEmployeesDetails.map((emp, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between gap-2 text-xs bg-white dark:bg-[#1A1D24] p-1.5 rounded-lg border border-slate-200/80 dark:border-[#2D3139]"
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <User className="w-3 h-3 text-blue-500 shrink-0" />
+                          <span className="font-semibold text-slate-800 dark:text-gray-200 truncate">{emp.employeeName}</span>
+                          {emp.departmentName && (
+                            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 shrink-0">
+                              ({emp.departmentName})
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-medium text-slate-600 dark:text-gray-400 bg-slate-100 dark:bg-[#2D3139] px-1.5 py-0.5 rounded shrink-0">
+                          {emp.organizationName}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : doc.recipientEmployeeNames ? (
+                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-[#2D3139]/60">
+                  <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">ФИО Получателя:</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">
+                    {doc.recipientEmployeeNames}
+                  </span>
+                </div>
+              ) : null}
+              {doc.recipientDepartmentNames && !doc.recipientEmployeeNames && (
                 <div className="mt-2 pt-2 border-t border-slate-200 dark:border-[#2D3139]/60">
                   <span className="text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">Структурные подразделения:</span>
                   <span className="text-indigo-600 dark:text-indigo-300 font-medium text-xs">

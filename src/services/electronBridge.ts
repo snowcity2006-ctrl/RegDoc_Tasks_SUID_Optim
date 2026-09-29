@@ -9,6 +9,7 @@ import {
   Direction,
   Project,
   DocumentRecord,
+  RecipientEmployeeDetail,
   TaskRecord,
   SuidTaskRecord,
   DatabaseConfig,
@@ -944,7 +945,12 @@ class WebMockDatabase implements ElectronAPI {
 
     // Проверка документов
     const docs = await this.getDocuments();
-    const isUsedInDocs = docs.some((d) => d.senderEmployeeId === id || d.signatoryEmployeeId === id);
+    const isUsedInDocs = docs.some(
+      (d) =>
+        d.senderEmployeeId === id ||
+        d.signatoryEmployeeId === id ||
+        (d.recipientEmployeeIds && d.recipientEmployeeIds.includes(id))
+    );
     if (isUsedInDocs) {
       throw new Error('Нельзя удалить сотрудника, так как он указан в зарегистрированных документах');
     }
@@ -1241,6 +1247,38 @@ class WebMockDatabase implements ElectronAPI {
         }
       }
 
+      let recipientEmployeeNames = doc.recipientEmployeeNames;
+      const recipientEmployeesDetails: RecipientEmployeeDetail[] = [];
+      if (doc.recipientEmployeeIds && doc.recipientEmployeeIds.length > 0) {
+        const eNames = doc.recipientEmployeeIds
+          .map((id) => empMap.get(id))
+          .filter(Boolean);
+        if (eNames.length > 0) {
+          recipientEmployeeNames = eNames.join(', ');
+        }
+
+        doc.recipientEmployeeIds.forEach((empId) => {
+          const emp = emps.find((e) => e.id === empId);
+          if (emp) {
+            const org = orgMap.get(emp.organizationId) || emp.organizationName || '—';
+            recipientEmployeesDetails.push({
+              employeeId: emp.id,
+              employeeName: emp.fullName,
+              organizationId: emp.organizationId,
+              organizationName: org,
+              departmentName: emp.departmentShortName || undefined,
+            });
+          } else if (empMap.has(empId)) {
+            recipientEmployeesDetails.push({
+              employeeId: empId,
+              employeeName: empMap.get(empId) || '',
+              organizationId: 0,
+              organizationName: '—',
+            });
+          }
+        });
+      }
+
       return {
         ...doc,
         docTypeName: dtName,
@@ -1253,6 +1291,9 @@ class WebMockDatabase implements ElectronAPI {
         recipientIds: rIds,
         recipientDepartmentIds: doc.recipientDepartmentIds || [],
         recipientDepartmentNames,
+        recipientEmployeeIds: doc.recipientEmployeeIds || [],
+        recipientEmployeeNames,
+        recipientEmployeesDetails,
       };
     });
   }
@@ -1290,6 +1331,8 @@ class WebMockDatabase implements ElectronAPI {
       recipientIds: rIds,
       recipientDepartmentIds: doc.recipientDepartmentIds || [],
       recipientDepartmentNames: doc.recipientDepartmentNames || undefined,
+      recipientEmployeeIds: doc.recipientEmployeeIds || [],
+      recipientEmployeeNames: doc.recipientEmployeeNames || undefined,
       relatedDocIds: Array.isArray(doc.relatedDocIds) ? doc.relatedDocIds : [],
     };
 

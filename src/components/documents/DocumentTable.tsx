@@ -21,8 +21,11 @@ import {
   MoveDiagonal,
   Copy,
   Check,
+  Building2,
+  User,
+  Users,
 } from 'lucide-react';
-import { DocumentRecord } from '../../types';
+import { DocumentRecord, Employee, Organization } from '../../types';
 import { formatDateRussian } from '../../utils/date';
 import { electronBridge } from '../../services/electronBridge';
 import { hasRelatedDocuments, getRelatedDocumentsCount } from '../../utils/relatedDocs';
@@ -30,6 +33,8 @@ import { hasRelatedDocuments, getRelatedDocumentsCount } from '../../utils/relat
 interface DocumentTableProps {
   documents: DocumentRecord[];
   allDocuments?: DocumentRecord[];
+  employees?: Employee[];
+  organizations?: Organization[];
   onView?: (doc: DocumentRecord) => void;
   onEdit?: (doc: DocumentRecord) => void;
   onDelete?: (id: number) => Promise<void>;
@@ -56,6 +61,8 @@ type SortField =
 export const DocumentTable: React.FC<DocumentTableProps> = ({
   documents,
   allDocuments,
+  employees,
+  organizations,
   onView,
   onEdit,
   onDelete,
@@ -105,7 +112,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
     inDate: 100,
     subject: 280,
     sender: 170,
-    recipient: 170,
+    recipient: 200,
     filePath: 220,
     sedUrl: 80,
     actions: isRelatedSelectionMode ? 165 : 135,
@@ -435,6 +442,163 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         setDeleting(false);
       }
     }
+  };
+
+  // Отображение получателя с детальной привязкой сотрудников к организациям
+  const renderRecipientCell = (doc: DocumentRecord) => {
+    // 1. Получаем детальную информацию по сотрудникам и их организациям
+    let empDetails = doc.recipientEmployeesDetails;
+    if ((!empDetails || empDetails.length === 0) && doc.recipientEmployeeIds && doc.recipientEmployeeIds.length > 0) {
+      empDetails = doc.recipientEmployeeIds.map((empId) => {
+        const emp = employees?.find((e) => e.id === empId);
+        const orgName = emp
+          ? (organizations?.find((o) => o.id === emp.organizationId)?.name || emp.organizationName || '—')
+          : '—';
+        return {
+          employeeId: empId,
+          employeeName: emp ? emp.fullName : (doc.recipientEmployeeNames || `Сотрудник #${empId}`),
+          organizationId: emp ? emp.organizationId : 0,
+          organizationName: orgName,
+          departmentName: emp?.departmentShortName,
+        };
+      });
+    }
+
+    const hasEmployees = Boolean(empDetails && empDetails.length > 0);
+    const hasOrgName = Boolean(doc.recipientName && doc.recipientName !== '—');
+
+    if (!hasEmployees && !hasOrgName) {
+      return <span className="text-slate-400 dark:text-gray-500">—</span>;
+    }
+
+    // Если нет выбранных сотрудников, выводим стандартно организацию и СП
+    if (!hasEmployees) {
+      return (
+        <div className="leading-snug">
+          <div className="flex items-start gap-1 font-semibold text-slate-800 dark:text-gray-200">
+            <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
+            <span className="break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal">
+              {doc.recipientName || '—'}
+            </span>
+          </div>
+          {doc.recipientDepartmentNames && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40 break-words">
+                СП: {doc.recipientDepartmentNames}
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 2. Группируем сотрудников по организациям, чтобы чётко было видно, какой сотрудник относится к какой организации
+    type Group = {
+      orgName: string;
+      orgId?: number;
+      employees: NonNullable<typeof empDetails>;
+    };
+
+    const groupsMap = new Map<string, Group>();
+
+    // Инициализируем группы для организаций, указанных в документе
+    if (doc.recipientIds && doc.recipientIds.length > 0) {
+      doc.recipientIds.forEach((orgId) => {
+        const orgObj = organizations?.find((o) => o.id === orgId);
+        const name = orgObj
+          ? orgObj.name
+          : (empDetails?.find((e) => e.organizationId === orgId)?.organizationName || `Организация #${orgId}`);
+        if (!groupsMap.has(name)) {
+          groupsMap.set(name, { orgName: name, orgId, employees: [] });
+        }
+      });
+    } else if (doc.recipientName && doc.recipientName !== '—') {
+      const splitNames = doc.recipientName.split(',').map((s) => s.trim()).filter(Boolean);
+      splitNames.forEach((name) => {
+        if (!groupsMap.has(name)) {
+          groupsMap.set(name, { orgName: name, employees: [] });
+        }
+      });
+    }
+
+    // Распределяем каждого сотрудника в группу его организации
+    empDetails?.forEach((emp) => {
+      let targetGroup: Group | undefined = undefined;
+      for (const group of groupsMap.values()) {
+        if (group.orgId && emp.organizationId && group.orgId === emp.organizationId) {
+          targetGroup = group;
+          break;
+        }
+        if (group.orgName.toLowerCase() === emp.organizationName.toLowerCase()) {
+          targetGroup = group;
+          break;
+        }
+      }
+
+      if (targetGroup) {
+        targetGroup.employees.push(emp);
+      } else {
+        const newOrgName =
+          emp.organizationName && emp.organizationName !== '—' ? emp.organizationName : 'Организация не указана';
+        if (groupsMap.has(newOrgName)) {
+          groupsMap.get(newOrgName)!.employees.push(emp);
+        } else {
+          groupsMap.set(newOrgName, {
+            orgName: newOrgName,
+            orgId: emp.organizationId || undefined,
+            employees: [emp],
+          });
+        }
+      }
+    });
+
+    const groups = Array.from(groupsMap.values());
+
+    return (
+      <div className="flex flex-col gap-1.5 py-0.5">
+        {groups.map((group, gIdx) => (
+          <div
+            key={gIdx}
+            className="rounded-lg p-2 bg-slate-50 dark:bg-[#1A1D24] border border-slate-200/90 dark:border-[#2D3139] shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+          >
+            {/* Организация */}
+            <div className="flex items-start gap-1.5 leading-snug font-semibold text-xs text-slate-900 dark:text-[#E0E0E0]">
+              <Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
+              <span className="break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal">
+                {group.orgName}
+              </span>
+            </div>
+
+            {/* Список сотрудников, прикреплённых к данной организации */}
+            {group.employees.length > 0 ? (
+              <div className="mt-1.5 pt-1.5 border-t border-slate-200/70 dark:border-[#2D3139]/70 flex flex-col gap-1 pl-0.5">
+                {group.employees.map((emp, eIdx) => (
+                  <div
+                    key={eIdx}
+                    className="flex items-center gap-1.5 text-[11px] leading-tight text-slate-800 dark:text-gray-200"
+                    title={`Сотрудник: ${emp.employeeName}\nОрганизация: ${group.orgName}${emp.departmentName ? `\nСП: ${emp.departmentName}` : ''}`}
+                  >
+                    <User className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <span className="font-medium break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal">
+                      {emp.employeeName}
+                    </span>
+                    {emp.departmentName && (
+                      <span className="text-[10px] px-1 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 shrink-0">
+                        {emp.departmentName}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-1 pl-5 text-[10px] text-slate-400 dark:text-gray-500 italic">
+                (сотрудник не указан)
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -983,18 +1147,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 {/* Получатель */}
                 <td
                   style={{ width: `${colWidths.recipient}px`, minWidth: `${colWidths.recipient}px`, maxWidth: `${colWidths.recipient}px` }}
-                  className="py-2.5 px-3 overflow-hidden break-words whitespace-normal text-slate-800 dark:text-gray-300 font-medium border-r border-[#2D3139]"
+                  className="py-2.5 px-3 overflow-hidden break-words whitespace-normal text-slate-800 dark:text-gray-300 font-medium border-r border-[#2D3139] align-top"
                 >
-                  <div>
-                    <span className="break-words">{doc.recipientName || '—'}</span>
-                    {doc.recipientDepartmentNames && (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40 break-words">
-                          СП: {doc.recipientDepartmentNames}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  {renderRecipientCell(doc)}
                 </td>
 
                 {/* Путь к документу (гиперссылка) */}
