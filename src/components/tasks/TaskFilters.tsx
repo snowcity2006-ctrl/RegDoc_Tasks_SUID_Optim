@@ -7,7 +7,8 @@ import {
   CheckCircle2,
   Clock,
   Flame,
-  CheckSquare
+  CheckSquare,
+  X,
 } from 'lucide-react';
 import { TaskFilterState, Employee, TaskRecord } from '../../types';
 import { calculateDaysRemaining } from '../../utils/taskUtils';
@@ -200,15 +201,29 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
         {/* Поиск по тексту задачи и результату */}
         <div className="md:col-span-4 relative">
-          <Search className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${filters.searchQuery ? 'text-amber-400' : 'text-gray-500'}`} />
           <input
             id="input-task-search"
             type="text"
             value={filters.searchQuery}
             onChange={(e) => onChange({ ...filters, searchQuery: e.target.value })}
             placeholder="Поиск по содержанию задачи или результату..."
-            className="w-full pl-9 pr-4 py-2 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs text-[#E0E0E0] placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            className={`w-full pl-9 pr-8 py-2 bg-[#0F1115] border rounded-xl text-xs text-[#E0E0E0] placeholder-gray-500 focus:outline-none transition-colors ${
+              filters.searchQuery
+                ? 'border-amber-500/60 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30'
+                : 'border-[#2D3139] focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+            }`}
           />
+          {filters.searchQuery && (
+            <button
+              type="button"
+              onClick={() => onChange({ ...filters, searchQuery: '' })}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-0.5 cursor-pointer"
+              title="Очистить поиск"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* 5. Поле выбора ответственных: множественный выбор и ручной ввод с клавиатуры */}

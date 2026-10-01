@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { TaskRecord, Employee } from '../../types';
 import { calculateDaysRemaining, getTaskStatusInfo } from '../../utils/taskUtils';
+import { HighlightText } from '../../utils/highlight';
 
 interface TaskFormModalProps {
   isOpen: boolean;
@@ -781,13 +782,13 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
                               <div className="flex-1 min-w-0">
                                 <div className={`truncate ${isChecked ? 'font-bold text-blue-950 dark:text-white' : 'font-medium text-slate-900 dark:text-[#E0E0E0]'}`}>
-                                  {emp.fullName}
+                                  <HighlightText text={emp.fullName} query={assigneeSearchQuery} />
                                 </div>
                                 {(emp.position || emp.departmentShortName) && (
                                   <div className="text-[10px] text-slate-500 dark:text-gray-400 truncate mt-0.5">
-                                    {emp.position}
+                                    {emp.position && <HighlightText text={emp.position} query={assigneeSearchQuery} />}
                                     {emp.position && emp.departmentShortName ? ' • ' : ''}
-                                    {emp.departmentShortName}
+                                    {emp.departmentShortName && <HighlightText text={emp.departmentShortName} query={assigneeSearchQuery} />}
                                   </div>
                                 )}
                               </div>

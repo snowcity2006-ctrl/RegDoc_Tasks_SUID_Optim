@@ -408,6 +408,7 @@ export const SuidView: React.FC<SuidViewProps> = ({
       <SuidTable
         tasks={filteredTasks}
         projects={projects}
+        searchQuery={filters.searchQuery}
         onView={handleView}
         onEdit={handleEdit}
         onDelete={onDeleteTask}

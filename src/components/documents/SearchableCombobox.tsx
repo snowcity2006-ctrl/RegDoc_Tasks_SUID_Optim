@@ -342,7 +342,7 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = React.memo(
           );
           if (isMatch) {
             return (
-              <span key={i} className="text-blue-400 font-semibold bg-blue-500/20 px-0.5 rounded">
+              <span key={i} className="bg-amber-300 dark:bg-amber-500/40 text-slate-950 dark:text-amber-100 font-semibold px-0.5 rounded-xs ring-1 ring-amber-400/60 dark:ring-amber-400/50 inline align-baseline">
                 {part}
               </span>
             );

@@ -80,13 +80,17 @@ export const SuidFilters: React.FC<SuidFiltersProps> = React.memo(({
       {/* Верхняя строка: быстрый текстовый поиск + переключатели */}
       <div className="flex flex-wrap items-center gap-2.5">
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${filters.searchQuery ? 'text-amber-400' : 'text-gray-400'}`} />
           <input
             type="text"
             value={filters.searchQuery}
             onChange={(e) => onChange({ ...filters, searchQuery: e.target.value })}
             placeholder="Поиск по задаче, описанию, ID СУИД, автору, проекту, куратору..."
-            className="w-full pl-9 pr-8 py-2 bg-white dark:bg-[#0F1115] border border-slate-200 dark:border-[#2D3139] focus:border-blue-500 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-hidden transition-colors"
+            className={`w-full pl-9 pr-8 py-2 bg-white dark:bg-[#0F1115] border rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-hidden transition-colors ${
+              filters.searchQuery
+                ? 'border-amber-500/60 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30'
+                : 'border-slate-200 dark:border-[#2D3139] focus:border-blue-500'
+            }`}
           />
           {filters.searchQuery && (
             <button

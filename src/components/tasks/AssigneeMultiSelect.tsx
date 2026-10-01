@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { User, Check, X, ChevronDown, Search } from 'lucide-react';
 import { Employee, TaskRecord } from '../../types';
+import { HighlightText } from '../../utils/highlight';
 
 interface AssigneeMultiSelectProps {
   employees: Employee[];
@@ -287,13 +288,13 @@ export const AssigneeMultiSelect: React.FC<AssigneeMultiSelectProps> = React.mem
 
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-[#E0E0E0] truncate">
-                          {emp.fullName}
+                          <HighlightText text={emp.fullName} query={searchQuery} />
                         </div>
                         {(emp.position || emp.departmentShortName) && (
                           <div className="text-[10px] text-gray-400 truncate">
-                            {emp.position}
+                            {emp.position && <HighlightText text={emp.position} query={searchQuery} />}
                             {emp.position && emp.departmentShortName ? ' • ' : ''}
-                            {emp.departmentShortName}
+                            {emp.departmentShortName && <HighlightText text={emp.departmentShortName} query={searchQuery} />}
                           </div>
                         )}
                       </div>

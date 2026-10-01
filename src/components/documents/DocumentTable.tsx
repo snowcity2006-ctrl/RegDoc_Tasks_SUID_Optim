@@ -29,12 +29,14 @@ import { DocumentRecord, Employee, Organization } from '../../types';
 import { formatDateRussian } from '../../utils/date';
 import { electronBridge } from '../../services/electronBridge';
 import { hasRelatedDocuments, getRelatedDocumentsCount } from '../../utils/relatedDocs';
+import { HighlightText } from '../../utils/highlight';
 
 interface DocumentTableProps {
   documents: DocumentRecord[];
   allDocuments?: DocumentRecord[];
   employees?: Employee[];
   organizations?: Organization[];
+  searchQuery?: string;
   onView?: (doc: DocumentRecord) => void;
   onEdit?: (doc: DocumentRecord) => void;
   onDelete?: (id: number) => Promise<void>;
@@ -63,6 +65,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   allDocuments,
   employees,
   organizations,
+  searchQuery = '',
   onView,
   onEdit,
   onDelete,
@@ -525,21 +528,21 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           <div className="flex items-start gap-1 font-semibold text-slate-800 dark:text-gray-200">
             <Building2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
             <span className="break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal">
-              {doc.recipientName || '—'}
+              <HighlightText text={doc.recipientName || '—'} query={searchQuery} />
             </span>
           </div>
           {doc.recipientEmployeeNames && (
             <div className="mt-1 flex flex-wrap gap-1">
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/40 break-words" title="ФИО Получателя">
                 <User className="w-2.5 h-2.5 shrink-0" />
-                <span>Получатель: {doc.recipientEmployeeNames}</span>
+                <span>Получатель:&nbsp;<HighlightText text={doc.recipientEmployeeNames} query={searchQuery} /></span>
               </span>
             </div>
           )}
           {doc.recipientDepartmentNames && (
             <div className="mt-1 flex flex-wrap gap-1">
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40 break-words">
-                СП: {doc.recipientDepartmentNames}
+                СП:&nbsp;<HighlightText text={doc.recipientDepartmentNames} query={searchQuery} />
               </span>
             </div>
           )}
@@ -624,7 +627,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             <div className="flex items-start gap-1.5 leading-snug font-semibold text-xs text-slate-900 dark:text-[#E0E0E0]">
               <Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
               <span className="break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal">
-                {group.orgName}
+                <HighlightText text={group.orgName} query={searchQuery} />
               </span>
             </div>
 
@@ -639,11 +642,11 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   >
                     <User className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
                     <span className="font-medium break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal">
-                      {emp.employeeName}
+                      <HighlightText text={emp.employeeName} query={searchQuery} />
                     </span>
                     {emp.departmentName && (
                       <span className="text-[10px] px-1 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 shrink-0">
-                        {emp.departmentName}
+                        <HighlightText text={emp.departmentName} query={searchQuery} />
                       </span>
                     )}
                   </div>
@@ -1089,7 +1092,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   className="py-2.5 px-3 font-mono font-semibold text-slate-700 dark:text-gray-500 overflow-hidden border-r border-[#2D3139]"
                   title={String(doc.id)}
                 >
-                  <span className="truncate block">{doc.id}</span>
+                  <span className="truncate block">
+                    <HighlightText text={doc.id} query={searchQuery} />
+                  </span>
                 </td>
 
                 {/* Тип документа */}
@@ -1099,7 +1104,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   title={doc.docTypeName || '—'}
                 >
                   <span className="block break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal leading-snug text-slate-800 dark:text-gray-300 font-medium">
-                    {doc.docTypeName || '—'}
+                    <HighlightText text={doc.docTypeName || '—'} query={searchQuery} />
                   </span>
                 </td>
 
@@ -1112,7 +1117,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   <span
                     className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 break-words [overflow-wrap:anywhere] [word-break:break-word] whitespace-normal leading-tight inline-block max-w-full text-center"
                   >
-                    {doc.directionName || '—'}
+                    <HighlightText text={doc.directionName || '—'} query={searchQuery} />
                   </span>
                 </td>
 
@@ -1123,7 +1128,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   title={doc.outgoingNumber || '—'}
                 >
                   <span className="truncate block">
-                    {doc.outgoingNumber || '—'}
+                    <HighlightText text={doc.outgoingNumber || '—'} query={searchQuery} />
                   </span>
                 </td>
 
@@ -1134,7 +1139,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   title={formatDateRussian(doc.outgoingDate)}
                 >
                   <span className="truncate block">
-                    {formatDateRussian(doc.outgoingDate)}
+                    <HighlightText text={formatDateRussian(doc.outgoingDate)} query={searchQuery} />
                   </span>
                 </td>
 
@@ -1145,7 +1150,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   title={doc.incomingNumber || '—'}
                 >
                   <span className="truncate block">
-                    {doc.incomingNumber || '—'}
+                    <HighlightText text={doc.incomingNumber || '—'} query={searchQuery} />
                   </span>
                 </td>
 
@@ -1156,7 +1161,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   title={formatDateRussian(doc.incomingDate)}
                 >
                   <span className="truncate block">
-                    {formatDateRussian(doc.incomingDate)}
+                    <HighlightText text={formatDateRussian(doc.incomingDate)} query={searchQuery} />
                   </span>
                 </td>
 
@@ -1170,8 +1175,14 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                     title={doc.subject}
                     className="font-bold text-slate-900 dark:text-[#E0E0E0] hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer break-words whitespace-normal leading-relaxed transition-colors block"
                   >
-                    {doc.subject}
+                    <HighlightText text={doc.subject} query={searchQuery} />
                   </span>
+                  {doc.comments && searchQuery && doc.comments.toLowerCase().includes(searchQuery.trim().toLowerCase()) && (
+                    <div className="mt-1 text-[11px] text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-[#1A1D24] p-1.5 rounded-lg border border-slate-200 dark:border-[#2D3139] leading-tight">
+                      <span className="font-semibold text-slate-500 dark:text-gray-400 text-[10px] block mb-0.5">В комментарии:</span>
+                      <HighlightText text={doc.comments} query={searchQuery} />
+                    </div>
+                  )}
                 </td>
 
                 {/* Отправитель */}
@@ -1180,22 +1191,24 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   className="py-2.5 px-3 overflow-hidden break-words whitespace-normal text-slate-800 dark:text-gray-300 font-medium border-r border-[#2D3139]"
                 >
                   <div>
-                    <span className="break-words">{doc.senderName || '—'}</span>
+                    <span className="break-words">
+                      <HighlightText text={doc.senderName || '—'} query={searchQuery} />
+                    </span>
                     {(doc.senderDepartmentName || doc.signatoryEmployeeName || doc.senderEmployeeName) && (
                       <div className="mt-1 flex flex-col gap-0.5 text-[10px]">
                         {doc.senderDepartmentName && (
                           <span className="inline-flex items-center text-blue-700 dark:text-blue-400 font-semibold break-words">
-                            СП: {doc.senderDepartmentName}
+                            СП:&nbsp;<HighlightText text={doc.senderDepartmentName} query={searchQuery} />
                           </span>
                         )}
                         {doc.signatoryEmployeeName && (
                           <span className="inline-flex items-center text-emerald-700 dark:text-emerald-400/90 font-semibold break-words">
-                            Подписал: {doc.signatoryEmployeeName}
+                            Подписал:&nbsp;<HighlightText text={doc.signatoryEmployeeName} query={searchQuery} />
                           </span>
                         )}
                         {doc.senderEmployeeName && (
                           <span className="inline-flex items-center text-slate-600 dark:text-gray-400 break-words">
-                            Исп: {doc.senderEmployeeName}
+                            Исп:&nbsp;<HighlightText text={doc.senderEmployeeName} query={searchQuery} />
                           </span>
                         )}
                       </div>
@@ -1237,7 +1250,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                             ) : (
                               <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                             )}
-                            <span className="break-all">{doc.filePath}</span>
+                            <span className="break-all">
+                              <HighlightText text={doc.filePath} query={searchQuery} />
+                            </span>
                           </button>
                           <button
                             type="button"

@@ -271,6 +271,7 @@ export const RelatedDocumentsModal: React.FC<RelatedDocumentsModalProps> = ({
               allDocuments={documents}
               employees={employees}
               organizations={organizations}
+              searchQuery={filters.searchQuery}
               isRelatedSelectionMode={true}
               selectedDocIds={selectedDocIds}
               onToggleDocSelect={handleToggleDocSelect}

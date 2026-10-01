@@ -23,6 +23,7 @@ import {
 import { TaskRecord } from '../../types';
 import { formatDateRussian } from '../../utils/date';
 import { calculateDaysRemaining, getTaskStatusInfo, formatDaysDisplay } from '../../utils/taskUtils';
+import { HighlightText } from '../../utils/highlight';
 
 export type TaskSortField =
   | 'id'
@@ -33,6 +34,7 @@ export type TaskSortField =
 
 interface TaskTableProps {
   tasks: TaskRecord[];
+  searchQuery?: string;
   onEdit: (task: TaskRecord) => void;
   onDelete: (id: number) => Promise<void>;
   onToggleCheck: (id: number, field: 'isCompleted' | 'isAccepted', value: boolean) => Promise<void>;
@@ -69,6 +71,7 @@ const MIN_COL_WIDTHS: Record<string, number> = {
 
 export const TaskTable: React.FC<TaskTableProps> = ({
   tasks,
+  searchQuery = '',
   onEdit,
   onDelete,
   onToggleCheck,
@@ -659,19 +662,19 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                 >
                   {/* Номер ID с поддержкой переноса */}
                   <td className="py-3 px-2 text-center text-gray-500 font-mono text-[11px] break-words overflow-hidden border-r border-[#2D3139]">
-                    {t.id}
+                    <HighlightText text={t.id} query={searchQuery} />
                   </td>
 
                   {/* Текст задачи: перенос по строкам при любой ширине */}
                   <td className="py-3 px-3 overflow-hidden border-r border-[#2D3139]">
                     <div className="font-medium text-[#E0E0E0] break-words whitespace-normal text-wrap leading-relaxed">
-                      {t.task}
+                      <HighlightText text={t.task} query={searchQuery} />
                     </div>
                   </td>
 
                   {/* Плановая дата */}
                   <td className="py-3 px-2.5 font-mono text-[11px] text-gray-300 break-words whitespace-normal text-wrap overflow-hidden border-r border-[#2D3139]">
-                    {formatDateRussian(t.plannedEndDate)}
+                    <HighlightText text={formatDateRussian(t.plannedEndDate)} query={searchQuery} />
                   </td>
 
                   {/* Фактическая дата - ручной выбор */}
@@ -788,7 +791,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                       <div className="flex items-start gap-1.5 break-words whitespace-normal text-wrap">
                         <User className="w-3 h-3 text-gray-400 shrink-0 mt-0.5" />
                         <span className="break-words whitespace-normal text-wrap font-medium leading-relaxed">
-                          {t.assigneeName}
+                          <HighlightText text={t.assigneeName} query={searchQuery} />
                         </span>
                       </div>
                     ) : (
@@ -800,7 +803,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                   <td className="py-3 px-3 overflow-hidden border-r border-[#2D3139]">
                     {t.result ? (
                       <div className="text-gray-300 text-[11px] leading-relaxed break-words whitespace-normal text-wrap">
-                        {t.result}
+                        <HighlightText text={t.result} query={searchQuery} />
                       </div>
                     ) : (
                       <span className="text-gray-600 italic">—</span>

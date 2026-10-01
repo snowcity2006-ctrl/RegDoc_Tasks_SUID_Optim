@@ -71,13 +71,17 @@ export const DocumentFilters: React.FC<DocumentFiltersProps> = React.memo(({
       {/* Верхняя строка: быстрый поиск и счетчики */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${filters.searchQuery ? 'text-amber-400' : 'text-gray-400'}`} />
           <input
             type="text"
             value={filters.searchQuery}
             onChange={(e) => onChange({ ...filters, searchQuery: e.target.value })}
             placeholder="Поиск по теме, номерам (Исх/Вх), комментариям, путям..."
-            className="w-full pl-9 pr-8 py-2 bg-[#0F1115] border border-[#2D3139] rounded-xl text-xs text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none focus:border-blue-500"
+            className={`w-full pl-9 pr-8 py-2 bg-[#0F1115] border rounded-xl text-xs text-[#E0E0E0] placeholder:text-gray-500 focus:outline-none transition-colors ${
+              filters.searchQuery
+                ? 'border-amber-500/60 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30'
+                : 'border-[#2D3139] focus:border-blue-500'
+            }`}
           />
           {filters.searchQuery && (
             <button

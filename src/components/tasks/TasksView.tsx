@@ -239,6 +239,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* Таблица задач */}
       <TaskTable
         tasks={filteredTasks}
+        searchQuery={filters.searchQuery}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onToggleCheck={handleToggleCheck}

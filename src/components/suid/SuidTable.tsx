@@ -25,10 +25,12 @@ import {
 import { SuidTaskRecord, Project } from '../../types';
 import { formatDateRussian } from '../../utils/date';
 import { resolveTaskProject } from '../../utils/projectUtils';
+import { HighlightText } from '../../utils/highlight';
 
 interface SuidTableProps {
   tasks: SuidTaskRecord[];
   projects?: Project[];
+  searchQuery?: string;
   onView?: (task: SuidTaskRecord) => void;
   onEdit?: (task: SuidTaskRecord) => void;
   onDelete?: (id: number) => Promise<void>;
@@ -52,6 +54,7 @@ type SortField =
 export const SuidTable: React.FC<SuidTableProps> = ({
   tasks,
   projects = [],
+  searchQuery = '',
   onView,
   onEdit,
   onDelete,
@@ -833,7 +836,9 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         style={{ width: `${colWidths.idx}px`, minWidth: `${colWidths.idx}px`, maxWidth: `${colWidths.idx}px` }}
                         className="px-2 py-2 text-center font-mono text-gray-400 overflow-hidden border-r border-[#2D3139]/50"
                       >
-                        <span className="whitespace-normal break-all block leading-tight">{t.idx ?? t.id}</span>
+                        <span className="whitespace-normal break-all block leading-tight">
+                          <HighlightText text={t.idx ?? t.id} query={searchQuery} />
+                        </span>
                       </td>
 
                       {/* Дата поступления */}
@@ -842,7 +847,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-gray-300 font-mono text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <span className="whitespace-normal break-words block leading-snug" title={formatDateRussian(t.receiptDate)}>
-                          {formatDateRussian(t.receiptDate)}
+                          <HighlightText text={formatDateRussian(t.receiptDate)} query={searchQuery} />
                         </span>
                       </td>
 
@@ -852,7 +857,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 font-mono text-[11px] text-blue-300 overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <span className="whitespace-normal break-words block leading-snug" title={formatDateRussian(t.plannedEndDate)}>
-                          {formatDateRussian(t.plannedEndDate)}
+                          <HighlightText text={formatDateRussian(t.plannedEndDate)} query={searchQuery} />
                         </span>
                       </td>
 
@@ -862,7 +867,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 font-mono text-[11px] text-emerald-300 overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <span className="whitespace-normal break-words block leading-snug" title={formatDateRussian(t.actualEndDate) || '—'}>
-                          {formatDateRussian(t.actualEndDate) || <span className="text-gray-500">—</span>}
+                          {t.actualEndDate ? <HighlightText text={formatDateRussian(t.actualEndDate)} query={searchQuery} /> : <span className="text-gray-500">—</span>}
                         </span>
                       </td>
 
@@ -891,7 +896,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-slate-900 dark:text-white font-medium overflow-hidden border-r border-slate-200 dark:border-[#2D3139]/50"
                       >
                         <div className="whitespace-normal break-words max-w-full text-xs leading-snug select-text" title={t.taskName}>
-                          {t.taskName}
+                          <HighlightText text={t.taskName} query={searchQuery} />
                         </div>
                       </td>
 
@@ -901,7 +906,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-slate-600 dark:text-gray-300 text-[11px] overflow-hidden border-r border-slate-200 dark:border-[#2D3139]/50"
                       >
                         <div className="whitespace-normal break-words max-w-full text-[11px] leading-snug select-text" title={t.taskDescription}>
-                          {t.taskDescription || <span className="text-gray-500">—</span>}
+                          {t.taskDescription ? <HighlightText text={t.taskDescription} query={searchQuery} /> : <span className="text-gray-500">—</span>}
                         </div>
                       </td>
 
@@ -913,7 +918,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         <div className="min-w-0 max-w-full">
                           {t.suidId ? (
                             <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 whitespace-normal break-all inline-block font-mono text-[11px] leading-tight select-text" title={t.suidId}>
-                              {t.suidId}
+                              <HighlightText text={t.suidId} query={searchQuery} />
                             </span>
                           ) : (
                             <span className="text-gray-500">—</span>
@@ -927,7 +932,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-gray-300 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={t.authorName}>
-                          {t.authorName || <span className="text-gray-500">—</span>}
+                          {t.authorName ? <HighlightText text={t.authorName} query={searchQuery} /> : <span className="text-gray-500">—</span>}
                         </div>
                       </td>
 
@@ -939,7 +944,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         <div className="min-w-0 max-w-full">
                           {t.docTypeName ? (
                             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 whitespace-normal break-words inline-block leading-tight select-text" title={t.docTypeName}>
-                              {t.docTypeName}
+                              <HighlightText text={t.docTypeName} query={searchQuery} />
                             </span>
                           ) : (
                             <span className="text-gray-500">—</span>
@@ -955,7 +960,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         <div className="min-w-0 max-w-full">
                           {displayProjectCode ? (
                             <span className="px-1.5 py-0.5 rounded bg-purple-500/15 border border-purple-500/25 whitespace-normal break-words inline-block font-mono leading-tight select-text" title={displayProjectCode}>
-                              {displayProjectCode}
+                              <HighlightText text={displayProjectCode} query={searchQuery} />
                             </span>
                           ) : (
                             <span className="text-gray-500">—</span>
@@ -969,7 +974,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-gray-300 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={displayProjectName}>
-                          {displayProjectName || <span className="text-gray-500">—</span>}
+                          {displayProjectName ? <HighlightText text={displayProjectName} query={searchQuery} /> : <span className="text-gray-500">—</span>}
                         </div>
                       </td>
 
@@ -990,7 +995,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                                 }`}
                                 title={dept.requiredReport ? `${dept.departmentShortName}: требуется отчет` : `${dept.departmentShortName}: без отчета`}
                               >
-                                {dept.departmentShortName}
+                                <HighlightText text={dept.departmentShortName} query={searchQuery} />
                               </span>
                             ))}
                           </div>
@@ -1022,9 +1027,15 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                                 ) : (
                                   <Clock className="w-3 h-3 text-amber-400 shrink-0" />
                                 )}
-                                <span className="font-bold text-gray-300 shrink-0">{br.departmentShortName}:</span>
+                                <span className="font-bold text-gray-300 shrink-0">
+                                  <HighlightText text={br.departmentShortName} query={searchQuery} />:
+                                </span>
                                 <span className="whitespace-normal break-words text-gray-400 min-w-0 leading-tight">
-                                  {br.documentDetails || (br.isReceived ? 'Отчет получен' : 'Ожидается')}
+                                  {br.documentDetails ? (
+                                    <HighlightText text={br.documentDetails} query={searchQuery} />
+                                  ) : (
+                                    br.isReceived ? 'Отчет получен' : 'Ожидается'
+                                  )}
                                 </span>
                               </div>
                             ))}
@@ -1043,7 +1054,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-gray-300 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={t.curatorNames}>
-                          {t.curatorNames || <span className="text-gray-500">—</span>}
+                          {t.curatorNames ? <HighlightText text={t.curatorNames} query={searchQuery} /> : <span className="text-gray-500">—</span>}
                         </div>
                       </td>
 
@@ -1053,7 +1064,7 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                         className="px-2.5 py-2 text-gray-400 text-[11px] overflow-hidden border-r border-[#2D3139]/50"
                       >
                         <div className="whitespace-normal break-words max-w-full leading-snug select-text" title={t.notes}>
-                          {t.notes || <span className="text-gray-500">—</span>}
+                          {t.notes ? <HighlightText text={t.notes} query={searchQuery} /> : <span className="text-gray-500">—</span>}
                         </div>
                       </td>
 

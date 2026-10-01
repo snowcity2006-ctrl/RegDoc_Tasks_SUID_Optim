@@ -669,6 +669,7 @@ export default function App() {
               allDocuments={documents}
               employees={employees}
               organizations={organizations}
+              searchQuery={filters.searchQuery}
               activeRelatedFilterDocId={activeRelatedFilterDocId}
               onToggleRelatedFilter={handleToggleRelatedFilter}
               onView={(doc) => setViewingDoc(doc)}
