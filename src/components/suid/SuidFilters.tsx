@@ -182,11 +182,6 @@ export const SuidFilters: React.FC<SuidFiltersProps> = React.memo(({
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
         )}
-
-        {/* Счетчик */}
-        <div className="text-xs text-slate-600 dark:text-gray-400 ml-auto whitespace-nowrap">
-          Найдено: <span className="font-semibold text-slate-900 dark:text-white">{filteredCount}</span> из {totalCount}
-        </div>
       </div>
 
       {/* Развернутая панель фильтров */}

@@ -245,6 +245,19 @@ html:not(.dark) #task-table-header span {
   color: #ffffff !important;
 }
 
+/* Единая высота и свойства заголовков всех таблиц программы по образцу таблицы «Таблица задач» */
+#task-table-header,
+#document-table-header,
+#suid-table-header,
+.directory-table-header,
+html:not(.dark) #task-table-header,
+html:not(.dark) #document-table-header,
+html:not(.dark) #suid-table-header,
+html:not(.dark) .directory-table-header {
+  min-height: 42px !important;
+  box-sizing: border-box !important;
+}
+
 /* ==========================================================================
    Элементы фильтров задач ("Всего задач", "В работе", "Срок сегодня", "Просрочено", "Принято"):
    В светлой теме цвет текста названий и цифр счетчиков ВСЕГДА строго черный (#000000).

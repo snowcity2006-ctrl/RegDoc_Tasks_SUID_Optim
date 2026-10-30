@@ -1,17 +1,5 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import {
-  Layers,
-  Plus,
-  FileSpreadsheet,
-  Printer,
-  RotateCcw,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  FileCheck2,
-  TrendingUp,
-} from 'lucide-react';
 import {
   SuidTaskRecord,
   DocumentType,
@@ -38,6 +26,7 @@ interface SuidViewProps {
   onOpenNewEmployeeModal?: () => void;
   onOpenNewProjectModal?: () => void;
   onOpenNewDepartmentModal?: (orgId?: number) => void;
+  createSuidTrigger?: number;
 }
 
 export const SuidView: React.FC<SuidViewProps> = ({
@@ -51,6 +40,7 @@ export const SuidView: React.FC<SuidViewProps> = ({
   onOpenNewEmployeeModal,
   onOpenNewProjectModal,
   onOpenNewDepartmentModal,
+  createSuidTrigger,
 }) => {
   // Состояние фильтрации
   const [filters, setFilters] = useState<SuidFilterState>({
@@ -177,6 +167,12 @@ export const SuidView: React.FC<SuidViewProps> = ({
     setModalOpen(true);
   };
 
+  useEffect(() => {
+    if (createSuidTrigger && createSuidTrigger > 0) {
+      handleOpenNew();
+    }
+  }, [createSuidTrigger]);
+
   const handleEdit = (task: SuidTaskRecord) => {
     setEditingTask(task);
     setModalOpen(true);
@@ -300,95 +296,39 @@ export const SuidView: React.FC<SuidViewProps> = ({
     }
   };
 
-  // Печать перечня
-  const handlePrint = () => {
-    window.print();
-  };
 
   return (
     <div className="flex flex-col gap-4 w-full pb-8">
       {/* Статистические карточки */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">
-          <div className="text-[11px] text-slate-500 dark:text-gray-400 font-medium">Всего в СУИД</div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-bold text-slate-900 dark:text-white font-mono">{stats.total}</span>
-            <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400 opacity-80 dark:opacity-60" />
-          </div>
+        <div className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex items-center justify-between gap-2 min-w-0">
+          <span className="text-xs text-slate-500 dark:text-gray-400 font-medium whitespace-nowrap">Всего в СУИД</span>
+          <span className="text-xs font-bold text-slate-900 dark:text-white font-mono shrink-0">{stats.total}</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">
-          <div className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">В работе</div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-bold text-amber-600 dark:text-amber-300 font-mono">{stats.inProgress}</span>
-            <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400 opacity-80 dark:opacity-60" />
-          </div>
+        <div className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex items-center justify-between gap-2 min-w-0">
+          <span className="text-xs text-amber-700 dark:text-amber-400 font-medium whitespace-nowrap">В работе</span>
+          <span className="text-xs font-bold text-amber-600 dark:text-amber-300 font-mono shrink-0">{stats.inProgress}</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">
-          <div className="text-[11px] text-rose-700 dark:text-rose-400 font-medium">С просрочкой</div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-bold text-rose-600 dark:text-rose-300 font-mono">{stats.delayed}</span>
-            <AlertTriangle className="w-4 h-4 text-rose-500 dark:text-rose-400 opacity-80 dark:opacity-60" />
-          </div>
+        <div className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex items-center justify-between gap-2 min-w-0">
+          <span className="text-xs text-rose-700 dark:text-rose-400 font-medium whitespace-nowrap">С просрочкой</span>
+          <span className="text-xs font-bold text-rose-600 dark:text-rose-300 font-mono shrink-0">{stats.delayed}</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">
-          <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">Завершенных</div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-300 font-mono">{stats.completed}</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 opacity-80 dark:opacity-60" />
-          </div>
+        <div className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex items-center justify-between gap-2 min-w-0">
+          <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium whitespace-nowrap">Завершенных</span>
+          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-300 font-mono shrink-0">{stats.completed}</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">
-          <div className="text-[11px] text-teal-700 dark:text-teal-400 font-medium">Сданных отчетов</div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-bold text-teal-600 dark:text-teal-300 font-mono">{stats.reportsComplete}</span>
-            <FileCheck2 className="w-4 h-4 text-teal-500 dark:text-teal-400 opacity-80 dark:opacity-60" />
-          </div>
+        <div className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex items-center justify-between gap-2 min-w-0">
+          <span className="text-xs text-teal-700 dark:text-teal-400 font-medium whitespace-nowrap">Сданных отчетов</span>
+          <span className="text-xs font-bold text-teal-600 dark:text-teal-300 font-mono shrink-0">{stats.reportsComplete}</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex flex-col justify-between">
-          <div className="text-[11px] text-purple-700 dark:text-purple-400 font-medium">Требуют отчетов</div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-bold text-purple-600 dark:text-purple-300 font-mono">{stats.reportsNeeded}</span>
-            <TrendingUp className="w-4 h-4 text-purple-500 dark:text-purple-400 opacity-80 dark:opacity-60" />
-          </div>
-        </div>
-      </div>
-
-      {/* Панель действий: Добавить запись, Экспорт, Печать */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] p-3 rounded-2xl shadow-xs">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleOpenNew}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-md"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Добавить запись</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0F1115] dark:hover:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Экспорт в Excel</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0F1115] dark:hover:bg-[#1F222B] border border-slate-200 dark:border-[#2D3139] text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <Printer className="w-4 h-4 text-slate-500 dark:text-gray-400" />
-            <span>Печать</span>
-          </button>
+        <div className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-slate-200 dark:border-[#2D3139] shadow-xs flex items-center justify-between gap-2 min-w-0">
+          <span className="text-xs text-purple-700 dark:text-purple-400 font-medium whitespace-nowrap">Требуют отчетов</span>
+          <span className="text-xs font-bold text-purple-600 dark:text-purple-300 font-mono shrink-0">{stats.reportsNeeded}</span>
         </div>
       </div>
 
@@ -407,11 +347,14 @@ export const SuidView: React.FC<SuidViewProps> = ({
       {/* Табличная часть */}
       <SuidTable
         tasks={filteredTasks}
+        totalCount={tasks.length}
+        filteredCount={filteredTasks.length}
         projects={projects}
         searchQuery={filters.searchQuery}
         onView={handleView}
         onEdit={handleEdit}
         onDelete={onDeleteTask}
+        onExportExcel={handleExportExcel}
       />
 
       {/* Модальное окно создания / редактирования */}

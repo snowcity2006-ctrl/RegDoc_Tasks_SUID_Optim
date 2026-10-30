@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Clock,
   FileCheck2,
+  FileSpreadsheet,
   Ban,
   GripHorizontal,
   MoveDiagonal,
@@ -29,11 +30,14 @@ import { HighlightText } from '../../utils/highlight';
 
 interface SuidTableProps {
   tasks: SuidTaskRecord[];
+  totalCount?: number;
+  filteredCount?: number;
   projects?: Project[];
   searchQuery?: string;
   onView?: (task: SuidTaskRecord) => void;
   onEdit?: (task: SuidTaskRecord) => void;
   onDelete?: (id: number) => Promise<void>;
+  onExportExcel?: () => void;
 }
 
 type SortField =
@@ -53,11 +57,14 @@ type SortField =
 
 export const SuidTable: React.FC<SuidTableProps> = ({
   tasks,
+  totalCount,
+  filteredCount,
   projects = [],
   searchQuery = '',
   onView,
   onEdit,
   onDelete,
+  onExportExcel,
 }) => {
   // Сортировка
   const [sortField, setSortField] = useState<SortField>('idx');
@@ -456,21 +463,21 @@ export const SuidTable: React.FC<SuidTableProps> = ({
           id="suid-table-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает окно таблицы на весь экран или восстанавливает исходный размер"
-          className="px-4 py-2.5 bg-blue-600 border-b border-blue-500/50 text-white flex flex-wrap items-center justify-between gap-2 shrink-0 select-none cursor-default"
+          className="px-3 py-2 min-h-[42px] bg-blue-600 border-b border-blue-500/50 text-white flex items-center justify-between gap-2 shrink-0 select-none cursor-default"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
               <Layers className="w-3.5 h-3.5" />
             </div>
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
               <h3
                 id="suid-table-title"
                 className="text-xs font-bold text-white tracking-wide uppercase truncate"
               >
                 Работа в СУИД
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-700/80 text-white border border-blue-400/40 shrink-0">
-                {tasks.length}
+              <span className="text-xs font-normal text-blue-100 select-none whitespace-nowrap">
+                (Отображено: <strong className="font-semibold text-white">{filteredCount ?? tasks.length}</strong> из {totalCount ?? tasks.length})
               </span>
             </div>
           </div>
@@ -490,6 +497,19 @@ export const SuidTable: React.FC<SuidTableProps> = ({
                 className="px-2 py-1 rounded-md bg-blue-700/80 hover:bg-blue-800 text-[11px] text-white flex items-center gap-1 border border-blue-400/40 transition-colors cursor-pointer"
               >
                 100% ширины
+              </button>
+            )}
+
+            {onExportExcel && (
+              <button
+                id="btn-suid-table-export-excel"
+                type="button"
+                onClick={onExportExcel}
+                title="Выгрузить отфильтрованные задачи в файл(ы) Excel"
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-700/80 hover:bg-emerald-700 text-white transition-colors cursor-pointer text-[11px] border border-emerald-400/40 shadow-xs font-medium"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-200" />
+                <span className="hidden sm:inline">В Excel</span>
               </button>
             )}
 

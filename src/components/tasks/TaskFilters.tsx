@@ -286,17 +286,14 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
         </div>
       </div>
 
-      {/* Строка со счетчиком совпадений */}
-      <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1 border-t border-[#2D3139]/60">
-        <span>
-          Отображено: <strong className="text-[#E0E0E0]">{filteredCount}</strong> из {totalCount} задач
-        </span>
-        {hasActiveFilters && (
-          <span className="text-blue-400">
+      {/* Индикатор активных пользовательских фильтров */}
+      {hasActiveFilters && (
+        <div className="flex items-center justify-end text-[11px] text-blue-400 pt-1 border-t border-[#2D3139]/60">
+          <span>
             Применены пользовательские фильтры ({filters.assigneeIds?.length ? `Выбрано исполнителей: ${filters.assigneeIds.length}` : ''})
           </span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

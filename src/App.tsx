@@ -111,7 +111,8 @@ export default function App() {
   const [quickDirectionModalOpen, setQuickDirectionModalOpen] = useState(false);
   const [quickProjectModalOpen, setQuickProjectModalOpen] = useState(false);
 
-  // Уведомления (Toasts)
+  const [createTaskTrigger, setCreateTaskTrigger] = useState(0);
+  const [createSuidTrigger, setCreateSuidTrigger] = useState(0);
   const [notification, setNotification] = useState<{
     type: 'success' | 'error' | 'info';
     message: string;
@@ -625,6 +626,30 @@ export default function App() {
                 <span>Регистрация документа</span>
               </button>
             )}
+
+            {activeTab === 'tasks' && (
+              <button
+                id="btn-create-task-main"
+                type="button"
+                onClick={() => setCreateTaskTrigger((prev) => prev + 1)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs shadow-blue-500/20 transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Новая задача</span>
+              </button>
+            )}
+
+            {activeTab === 'suid' && (
+              <button
+                id="btn-create-suid-main"
+                type="button"
+                onClick={() => setCreateSuidTrigger((prev) => prev + 1)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs shadow-blue-500/20 transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Добавить запись</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -693,6 +718,7 @@ export default function App() {
             onToggleTaskCheck={handleToggleTaskCheck}
             onOpenNewEmployeeModal={() => setQuickEmpModalOpen(true)}
             showNotification={showNotification}
+            createTaskTrigger={createTaskTrigger}
           />
         )}
 
@@ -712,6 +738,7 @@ export default function App() {
               setQuickDeptInitialOrgId(orgId);
               setQuickDeptModalOpen(true);
             }}
+            createSuidTrigger={createSuidTrigger}
           />
         )}
 

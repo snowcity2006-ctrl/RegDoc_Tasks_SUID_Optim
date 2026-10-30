@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from 'react';
-import { Plus, CheckSquare, FileSpreadsheet } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { TaskRecord, TaskFilterState, Employee } from '../../types';
 import { TaskFilters } from './TaskFilters';
 import { TaskTable } from './TaskTable';
@@ -16,6 +15,7 @@ interface TasksViewProps {
   onToggleTaskCheck: (id: number, field: 'isCompleted' | 'isAccepted', value: boolean) => Promise<void>;
   onOpenNewEmployeeModal?: () => void;
   showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void;
+  createTaskTrigger?: number;
 }
 
 export const TasksView: React.FC<TasksViewProps> = ({
@@ -27,6 +27,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   onToggleTaskCheck,
   onOpenNewEmployeeModal,
   showNotification,
+  createTaskTrigger,
 }) => {
   const [formOpen, setFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskRecord | null>(null);
@@ -107,6 +108,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
     setFormOpen(true);
   };
 
+  useEffect(() => {
+    if (createTaskTrigger && createTaskTrigger > 0) {
+      handleOpenCreate();
+    }
+  }, [createTaskTrigger]);
+
   const handleEdit = (task: TaskRecord) => {
     setEditingTask(task);
     setFormOpen(true);
@@ -186,45 +193,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Верхняя панель заголовка раздела задач с кнопкой добавления */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#171A21] p-3.5 rounded-2xl border border-[#2D3139] shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-blue-600/10 text-blue-400 border border-blue-500/20 flex items-center justify-center">
-            <CheckSquare className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-[#E0E0E0]">
-              Контроль поручений и задач
-            </h2>
-            <p className="text-[11px] text-gray-400">
-              Автоматический расчет сроков, цветовые маркеры и фиксация исполнения
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            id="btn-export-tasks-excel"
-            type="button"
-            onClick={() => setExportModalOpen(true)}
-            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs shadow-emerald-500/20 transition-all cursor-pointer shrink-0"
-            title="Выгрузить задачи с учетом текущих фильтров в Excel"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-white" />
-            <span>Выгрузить в Excel</span>
-          </button>
-
-          <button
-            id="btn-create-task-main"
-            type="button"
-            onClick={handleOpenCreate}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs shadow-blue-500/20 transition-all cursor-pointer shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Новая задача</span>
-          </button>
-        </div>
-      </div>
 
       {/* Панель фильтрации и статистики */}
       <TaskFilters
@@ -239,6 +207,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* Таблица задач */}
       <TaskTable
         tasks={filteredTasks}
+        totalCount={tasks.length}
+        filteredCount={filteredTasks.length}
         searchQuery={filters.searchQuery}
         onEdit={handleEdit}
         onDelete={handleDelete}

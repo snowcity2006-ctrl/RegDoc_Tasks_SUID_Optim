@@ -106,7 +106,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
 
   // Управление шириной колонок (Column Resizing) по ТЗ
   const defaultColWidths: Record<string, number> = {
-    id: 64,
     docType: 140,
     direction: 130,
     outNum: 110,
@@ -127,6 +126,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
+        delete parsed.id;
         if (parsed.filePath && parsed.filePath < 180) {
           parsed.filePath = 220;
         }
@@ -142,7 +142,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   latestColWidthsRef.current = colWidths;
 
   const totalTableWidth = useMemo(() => {
-    return Object.values(colWidths).reduce((a, b) => a + b, 0);
+    return Object.entries(colWidths)
+      .filter(([key]) => key !== 'id')
+      .reduce((a, [, b]) => a + b, 0);
   }, [colWidths]);
 
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
@@ -696,10 +698,10 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           id="document-table-header"
           onDoubleClick={() => setIsMaximized((prev) => !prev)}
           title="Двойной клик разворачивает окно таблицы на весь экран или восстанавливает исходный размер"
-          className="px-4 py-2.5 bg-blue-600 border-b border-blue-500/50 text-white flex flex-wrap items-center justify-between gap-2 shrink-0 select-none cursor-default"
+          className="px-3 py-2 min-h-[42px] bg-blue-600 border-b border-blue-500/50 text-white flex items-center justify-between gap-2 shrink-0 select-none cursor-default"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
               <FileText className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-2 min-w-0">
@@ -787,7 +789,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             }}
           >
             <colgroup>
-              <col style={{ width: `${colWidths.id}px` }} />
               <col style={{ width: `${colWidths.docType}px` }} />
               <col style={{ width: `${colWidths.direction}px` }} />
               <col style={{ width: `${colWidths.outNum}px` }} />
@@ -803,25 +804,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             </colgroup>
             <thead className="sticky top-0 z-20 bg-[#1F222B] shadow-xs">
               <tr className="border-b border-[#2D3139] bg-[#1F222B] text-slate-800 dark:text-gray-400 font-bold dark:font-semibold uppercase tracking-wider">
-              
-              {/* ID */}
-              <th
-                style={{ width: `${colWidths.id}px`, minWidth: `${colWidths.id}px`, maxWidth: `${colWidths.id}px` }}
-                className="py-3 px-3 relative group overflow-hidden border-r border-[#2D3139]"
-              >
-                <div
-                  onClick={() => handleSort('id')}
-                  className="flex items-center justify-between cursor-pointer min-w-0 pr-1.5"
-                >
-                  <span className="truncate block" title="ID">ID</span>
-                  {renderSortIcon('id')}
-                </div>
-                <div
-                  onMouseDown={(e) => startResizing('id', e)}
-                  title="Изменить ширину столбца"
-                  className="absolute right-0 top-0 bottom-0 w-2.5 cursor-col-resize hover:bg-blue-500 active:bg-blue-600 transition-colors z-10"
-                />
-              </th>
 
               {/* Тип документа */}
               <th
@@ -1086,16 +1068,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                     : 'hover:bg-slate-100/80 dark:hover:bg-[#1F222B]/70'
                 } ${isRelatedSelectionMode && !isCurrentInModal ? 'cursor-pointer' : ''}`}
               >
-                {/* ID */}
-                <td
-                  style={{ width: `${colWidths.id}px`, minWidth: `${colWidths.id}px`, maxWidth: `${colWidths.id}px` }}
-                  className="py-2.5 px-3 font-mono font-semibold text-slate-700 dark:text-gray-500 overflow-hidden border-r border-[#2D3139]"
-                  title={String(doc.id)}
-                >
-                  <span className="truncate block">
-                    <HighlightText text={doc.id} query={searchQuery} />
-                  </span>
-                </td>
 
                 {/* Тип документа */}
                 <td
@@ -1399,7 +1371,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
 
             {paginatedDocuments.length === 0 && (
               <tr>
-                <td colSpan={13} className="py-12 text-center text-gray-500">
+                <td colSpan={12} className="py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <FileText className="w-8 h-8 text-gray-600" />
                     <p className="text-sm font-medium">Документы не найдены</p>

@@ -437,50 +437,44 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
     }
   };
 
+  const renderSearchInput = () => (
+    <div className="relative w-40 sm:w-56">
+      <Search
+        className={`w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
+          searchQuery ? 'text-amber-300' : 'text-blue-200'
+        }`}
+      />
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Поиск по справочнику..."
+        className={`w-full pl-8 pr-7 py-1 bg-blue-700/80 hover:bg-blue-700 focus:bg-blue-800 border rounded-lg text-[11px] text-white placeholder-blue-200/70 focus:outline-none transition-colors shadow-xs ${
+          searchQuery
+            ? 'border-amber-400 focus:border-amber-300 ring-1 ring-amber-400/40'
+            : 'border-blue-400/40 focus:border-blue-300'
+        }`}
+      />
+      {searchQuery && (
+        <button
+          type="button"
+          onClick={() => setSearchQuery('')}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-200 hover:text-white p-0.5 cursor-pointer"
+          title="Очистить поиск"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       
-      {/* Шапка справочников и выбор вкладок */}
-      <div className="bg-[#171A21] rounded-2xl p-4 sm:p-5 border border-[#2D3139] shadow-xs space-y-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-bold text-[#E0E0E0] flex items-center gap-2">
-              <span>Справочники системы</span>
-            </h2>
-            <p className="text-xs text-gray-400">
-              Управление нормативно-справочной информацией документооборота
-            </p>
-          </div>
-
-          {/* Строка поиска */}
-          <div className="relative w-full md:w-72">
-            <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${searchQuery ? 'text-amber-400' : 'text-gray-400'}`} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Поиск по справочнику..."
-              className={`w-full pl-9 pr-8 py-2 bg-[#0F1115] border rounded-xl text-xs text-[#E0E0E0] placeholder-gray-500 focus:outline-none transition-colors ${
-                searchQuery
-                  ? 'border-amber-500/60 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30'
-                  : 'border-[#2D3139] focus:ring-1 focus:ring-blue-500'
-              }`}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-0.5 cursor-pointer"
-                title="Очистить поиск"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-
+      {/* Выбор вкладок справочников */}
+      <div className="bg-[#171A21] rounded-2xl p-3 sm:p-4 border border-[#2D3139] shadow-xs">
         {/* Табы справочников */}
-        <div className="flex flex-wrap gap-2 border-t border-[#2D3139] pt-3">
+        <div className="flex flex-wrap gap-2">
           
           <button
             onClick={() => setActiveTab('orgs')}
@@ -591,26 +585,29 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 1. Справочник: Организации */}
       {activeTab === 'orgs' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Building2 className="w-4 h-4" />
+          <div className="directory-table-header px-3 py-2 min-h-[42px] border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between text-xs select-none shadow-xs shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Building2 className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
                 Справочник «Организации» ({sortedOrgs.length})
               </h3>
             </div>
-            <button
-              id="btn-add-organization"
-              onClick={() => {
-                setSelectedOrg(null);
-                setOrgModalOpen(true);
-              }}
-              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Добавить организацию</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {renderSearchInput()}
+              <button
+                id="btn-add-organization"
+                onClick={() => {
+                  setSelectedOrg(null);
+                  setOrgModalOpen(true);
+                }}
+                className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-[11px] font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Добавить организацию</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -774,26 +771,29 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 2. Справочник: Структурное подразделение */}
       {activeTab === 'depts' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Network className="w-4 h-4" />
+          <div className="directory-table-header px-3 py-2 min-h-[42px] border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between text-xs select-none shadow-xs shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Network className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
                 Справочник «Структурное подразделение» ({sortedDepts.length})
               </h3>
             </div>
-            <button
-              id="btn-add-department"
-              onClick={() => {
-                setSelectedDept(null);
-                setDeptModalOpen(true);
-              }}
-              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Добавить подразделение</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {renderSearchInput()}
+              <button
+                id="btn-add-department"
+                onClick={() => {
+                  setSelectedDept(null);
+                  setDeptModalOpen(true);
+                }}
+                className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-[11px] font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Добавить подразделение</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -947,26 +947,29 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 3. Справочник: Сотрудники */}
       {activeTab === 'emps' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <UserCheck className="w-4 h-4" />
+          <div className="directory-table-header px-3 py-2 min-h-[42px] border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between text-xs select-none shadow-xs shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <UserCheck className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
                 Справочник «Сотрудники» ({sortedEmps.length})
               </h3>
             </div>
-            <button
-              id="btn-add-employee"
-              onClick={() => {
-                setSelectedEmp(null);
-                setEmpModalOpen(true);
-              }}
-              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Добавить сотрудника</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {renderSearchInput()}
+              <button
+                id="btn-add-employee"
+                onClick={() => {
+                  setSelectedEmp(null);
+                  setEmpModalOpen(true);
+                }}
+                className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-[11px] font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Добавить сотрудника</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -1150,26 +1153,29 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 4. Справочник: Тип документа */}
       {activeTab === 'docTypes' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Tag className="w-4 h-4" />
+          <div className="directory-table-header px-3 py-2 min-h-[42px] border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between text-xs select-none shadow-xs shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Tag className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
                 Справочник «Тип документа» ({sortedDocTypes.length})
               </h3>
             </div>
-            <button
-              id="btn-add-doc-type"
-              onClick={() => {
-                setSelectedDocType(null);
-                setDocTypeModalOpen(true);
-              }}
-              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Добавить тип</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {renderSearchInput()}
+              <button
+                id="btn-add-doc-type"
+                onClick={() => {
+                  setSelectedDocType(null);
+                  setDocTypeModalOpen(true);
+                }}
+                className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-[11px] font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Добавить тип</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -1277,26 +1283,29 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 5. Справочник: Направление */}
       {activeTab === 'directions' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden">
-          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Compass className="w-4 h-4" />
+          <div className="directory-table-header px-3 py-2 min-h-[42px] border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between text-xs select-none shadow-xs shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Compass className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
                 Справочник «Направление» ({sortedDirs.length})
               </h3>
             </div>
-            <button
-              id="btn-add-direction"
-              onClick={() => {
-                setSelectedDir(null);
-                setDirModalOpen(true);
-              }}
-              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Добавить направление</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {renderSearchInput()}
+              <button
+                id="btn-add-direction"
+                onClick={() => {
+                  setSelectedDir(null);
+                  setDirModalOpen(true);
+                }}
+                className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-[11px] font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Добавить направление</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -1404,26 +1413,29 @@ export const DirectoriesView: React.FC<DirectoriesViewProps> = ({
       {/* 6. Справочник: Проекты */}
       {activeTab === 'projects' && (
         <div className="bg-[#171A21] rounded-2xl border border-[#2D3139] shadow-xs overflow-hidden flex flex-col">
-          <div className="directory-table-header p-4 sm:p-5 border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Briefcase className="w-4 h-4" />
+          <div className="directory-table-header px-3 py-2 min-h-[42px] border-b border-blue-500/50 bg-blue-600 text-white flex items-center justify-between text-xs select-none shadow-xs shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-blue-700/80 border border-blue-400/40 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Briefcase className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
                 Справочник «Проекты» ({sortedProjects.length})
               </h3>
             </div>
-            <button
-              id="btn-add-project"
-              onClick={() => {
-                setSelectedProject(null);
-                setProjectModalOpen(true);
-              }}
-              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Добавить проект</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {renderSearchInput()}
+              <button
+                id="btn-add-project"
+                onClick={() => {
+                  setSelectedProject(null);
+                  setProjectModalOpen(true);
+                }}
+                className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 border border-blue-400/40 text-white text-[11px] font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Добавить проект</span>
+              </button>
+            </div>
           </div>
 
           {/* Таблица: прокрутка колесиком мыши, фиксированная шапка, видимые границы колонок и строк */}

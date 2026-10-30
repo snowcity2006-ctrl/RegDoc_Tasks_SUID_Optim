@@ -34,6 +34,8 @@ export type TaskSortField =
 
 interface TaskTableProps {
   tasks: TaskRecord[];
+  totalCount?: number;
+  filteredCount?: number;
   searchQuery?: string;
   onEdit: (task: TaskRecord) => void;
   onDelete: (id: number) => Promise<void>;
@@ -71,6 +73,8 @@ const MIN_COL_WIDTHS: Record<string, number> = {
 
 export const TaskTable: React.FC<TaskTableProps> = ({
   tasks,
+  totalCount,
+  filteredCount,
   searchQuery = '',
   onEdit,
   onDelete,
@@ -400,15 +404,18 @@ export const TaskTable: React.FC<TaskTableProps> = ({
       {/* Верхняя панель управления размерами таблицы */}
       <div
         id="task-table-header"
-        className="px-3 py-2 border-b border-blue-500/40 flex items-center justify-between text-xs text-white bg-blue-600 rounded-t-2xl select-none shadow-xs"
+        className="px-3 py-2 min-h-[42px] border-b border-blue-500/40 flex items-center justify-between text-xs text-white bg-blue-600 rounded-t-2xl select-none shadow-xs"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
           <span
             id="task-table-title"
             className="font-bold tracking-wide text-sm !text-white text-white"
             style={{ color: '#ffffff' }}
           >
             Таблица задач
+          </span>
+          <span className="text-xs font-normal text-blue-100 select-none">
+            (Отображено: <strong className="font-semibold text-white">{filteredCount ?? tasks.length}</strong> из {totalCount ?? tasks.length} задач)
           </span>
         </div>
 
@@ -478,14 +485,14 @@ export const TaskTable: React.FC<TaskTableProps> = ({
           {/* Заголовки с возможностью изменения ширины колонок и сортировки */}
           <thead className="sticky top-0 z-20 bg-[#0F1115] shadow-xs">
             <tr className="border-b border-[#2D3139] text-gray-400 font-semibold select-none">
-              {/* 2. Колонка #: сортировка по возрастанию/убыванию */}
+              {/* 2. Колонка №: сортировка по возрастанию/убыванию */}
               <th
                 onClick={() => handleSort('id')}
                 className="py-3 px-2 text-center cursor-pointer hover:text-white transition-colors group relative select-none overflow-hidden border-r border-[#2D3139]"
-                title="Сортировка по номеру (#)"
+                title="Сортировка по номеру (№)"
               >
                 <div className="flex items-center justify-center gap-1">
-                  <span>#</span>
+                  <span>№</span>
                   {renderSortIcon('id')}
                 </div>
                 {/* Ресайзер ширины колонки */}
